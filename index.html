@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#4d79ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="https://img.icons8.com/color/96/null/tic-tac-toe.png"
+    />
+    <title>Game Caro Online</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <!-- Blockchain Network Background -->
+    <canvas id="blockchain-background"></canvas>
+
+    <div class="container">
+      <h1>Game Caro Online</h1>
+      <div id="connection-status"></div>
+
+      <!-- Login screen -->
+      <div id="login-screen" class="login-screen">
+        <h2>Tham gia trò chơi</h2>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="join">Tham gia phòng</button>
+          <button class="tab-btn" data-tab="create">Tạo phòng mới</button>
+        </div>
+
+        <!-- Join Room Tab -->
+        <div id="join-tab" class="tab-content active">
+          <div class="form-group">
+            <label for="player-name-join">Tên người chơi:</label>
+            <input
+              type="text"
+              id="player-name-join"
+              placeholder="Nhập tên của bạn"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="room-id-join">Mã phòng:</label>
+            <input
+              type="text"
+              id="room-id-join"
+              placeholder="Nhập mã phòng để tham gia"
+            />
+          </div>
+          <button id="join-btn" class="btn-primary">Tham gia</button>
+
+          <div class="room-list-container">
+            <h3>Danh sách phòng</h3>
+            <div id="room-list" class="room-list">
+              <p class="loading-text">Đang tải danh sách phòng...</p>
+            </div>
+            <button id="refresh-rooms" class="btn-secondary">Làm mới</button>
+          </div>
+        </div>
+
+        <!-- Create Room Tab -->
+        <div id="create-tab" class="tab-content">
+          <div class="form-group">
+            <label for="player-name-create">Tên người chơi:</label>
+            <input
+              type="text"
+              id="player-name-create"
+              placeholder="Nhập tên của bạn"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="room-name">Tên phòng:</label>
+            <input
+              type="text"
+              id="room-name"
+              placeholder="Nhập tên phòng (tùy chọn)"
+            />
+          </div>
+          <div class="form-group">
+            <label for="room-id-create">Mã phòng:</label>
+            <input
+              type="text"
+              id="room-id-create"
+              placeholder="Để trống để tạo mã tự động"
+            />
+          </div>
+          <div class="form-group">
+            <label for="board-size-create">Kích thước bàn cờ:</label>
+            <select id="board-size-create">
+              <option value="10">10x10</option>
+              <option value="15" selected>15x15</option>
+              <option value="20">20x20</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="move-time">Thời gian mỗi nước đi (giây):</label>
+            <select id="move-time">
+              <option value="15">15 giây</option>
+              <option value="30" selected>30 giây</option>
+              <option value="60">1 phút</option>
+              <option value="120">2 phút</option>
+            </select>
+          </div>
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="public-room" checked />
+            <label for="public-room"
+              >Hiển thị phòng trong danh sách công khai</label
+            >
+          </div>
+          <button id="create-room-btn" class="btn-primary">Tạo phòng</button>
+        </div>
+      </div>
+
+      <!-- Waiting screen -->
+      <div id="waiting-screen" class="waiting-screen hidden">
+        <h2>Đang chờ người chơi khác...</h2>
+        <div class="room-info-display">
+          <p>Tên phòng: <span id="waiting-room-name"></span></p>
+          <p>Mã phòng: <span id="room-code"></span></p>
+          <p>
+            Kích thước bàn cờ: <span id="waiting-board-size"></span>x<span
+              id="waiting-board-size-2"
+            ></span>
+          </p>
+          <p>Thời gian mỗi nước: <span id="waiting-move-time"></span> giây</p>
+        </div>
+        <p>Chia sẻ mã phòng này cho bạn bè để họ có thể tham gia!</p>
+        <button id="cancel-waiting" class="btn-secondary">
+          Hủy và quay lại
+        </button>
+      </div>
+
+      <!-- Game container -->
+      <div id="game-container" class="game-container hidden">
+        <div class="game-info">
+          <div class="player-turn">
+            <span class="player-x active">Người chơi X</span>
+            <span class="player-o">Người chơi O</span>
+          </div>
+          <div class="timer-display">
+            <div class="timer-icon">⏱️</div>
+            <div id="timer" class="timer">30</div>
+          </div>
+          <div class="score-board">
+            <div class="score x-score">
+              <span class="x-symbol">X</span>: <span id="x-score">0</span>
+            </div>
+            <div class="score o-score">
+              <span class="o-symbol">O</span>: <span id="o-score">0</span>
+            </div>
+          </div>
+          <div id="toggle-sound" class="sound-toggle" title="Tắt âm thanh">
+            🔊
+          </div>
+        </div>
+
+        <div class="online-status">
+          <div class="room-info">
+            Phòng: <span id="current-room-name"></span> (<span
+              id="current-room"
+            ></span
+            >)
+          </div>
+          <div class="players-info">
+            <div id="player-x-info" class="player-info">X: <span></span></div>
+            <div id="player-o-info" class="player-info">O: <span></span></div>
+          </div>
+        </div>
+
+        <div class="game-board" id="game-board"></div>
+
+        <div class="controls">
+          <button id="reset-game">Chơi lại</button>
+          <button id="new-game">Ván mới</button>
+          <select id="board-size">
+            <option value="10">10x10</option>
+            <option value="15" selected>15x15</option>
+            <option value="20">20x20</option>
+          </select>
+          <select id="game-move-time">
+            <option value="15">15s</option>
+            <option value="30" selected>30s</option>
+            <option value="60">1m</option>
+            <option value="120">2m</option>
+          </select>
+          <button id="leave-room">Rời phòng</button>
+        </div>
+
+        <!-- Emoji reactions -->
+        <div class="emoji-container">
+          <div id="heart-emoji" class="emoji-btn heart" title="Gửi trái tim">
+            ❤️
+          </div>
+          <div id="stone-emoji" class="emoji-btn stone" title="Ném đá">🗿</div>
+          <div id="clap-emoji" class="emoji-btn clap" title="Vỗ tay">👏</div>
+          <div id="laugh-emoji" class="emoji-btn laugh" title="Cười">😂</div>
+          <div id="think-emoji" class="emoji-btn think" title="Suy nghĩ">
+            🤔
+          </div>
+          <div id="fire-emoji" class="emoji-btn fire" title="Cháy nổ">🔥</div>
+        </div>
+
+        <div id="game-message" class="game-message"></div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
