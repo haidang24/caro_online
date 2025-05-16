@@ -453,12 +453,25 @@ function checkWin(board, row, col, player, boardSize) {
   ];
 
   return directions.some(([dx, dy]) => {
-    return (
+    const count =
       checkDirection(board, row, col, dx, dy, player, boardSize) +
-        checkDirection(board, row, col, -dx, -dy, player, boardSize) -
-        1 >=
-      5
-    );
+      checkDirection(board, row, col, -dx, -dy, player, boardSize) -
+      1;
+
+    if (count >= 5) {
+      // Kiểm tra chặn 2 đầu
+      const isBlocked = checkBlockedEnds(
+        board,
+        row,
+        col,
+        dx,
+        dy,
+        player,
+        boardSize
+      );
+      return !isBlocked; // Chỉ thắng nếu KHÔNG bị chặn 2 đầu
+    }
+    return false;
   });
 }
 
@@ -481,6 +494,57 @@ function checkDirection(board, row, col, dx, dy, player, boardSize) {
   }
 
   return count;
+}
+
+function checkBlockedEnds(board, row, col, dx, dy, player, boardSize) {
+  // Tìm điểm đầu và cuối của dãy quân
+  let startRow = row;
+  let startCol = col;
+  let endRow = row;
+  let endCol = col;
+
+  // Tìm điểm đầu
+  while (
+    startRow - dx >= 0 &&
+    startRow - dx < boardSize &&
+    startCol - dy >= 0 &&
+    startCol - dy < boardSize &&
+    board[startRow - dx][startCol - dy] === player
+  ) {
+    startRow -= dx;
+    startCol -= dy;
+  }
+
+  // Tìm điểm cuối
+  while (
+    endRow + dx >= 0 &&
+    endRow + dx < boardSize &&
+    endCol + dy >= 0 &&
+    endCol + dy < boardSize &&
+    board[endRow + dx][endCol + dy] === player
+  ) {
+    endRow += dx;
+    endCol += dy;
+  }
+
+  // Kiểm tra ô trước điểm đầu
+  const startBlocked =
+    startRow - dx < 0 ||
+    startRow - dx >= boardSize ||
+    startCol - dy < 0 ||
+    startCol - dy >= boardSize ||
+    board[startRow - dx][startCol - dy] === (player === "x" ? "o" : "x");
+
+  // Kiểm tra ô sau điểm cuối
+  const endBlocked =
+    endRow + dx < 0 ||
+    endRow + dx >= boardSize ||
+    endCol + dy < 0 ||
+    endCol + dy >= boardSize ||
+    board[endRow + dx][endCol + dy] === (player === "x" ? "o" : "x");
+
+  // Trả về true nếu cả hai đầu đều bị chặn
+  return startBlocked && endBlocked;
 }
 
 function checkDraw(board) {

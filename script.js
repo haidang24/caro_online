@@ -54,6 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // "https://assets.mixkit.co/active_storage/sfx/1131/1131-preview.mp3"
       "./public/like.mp3"
     ),
+    message: new Audio(
+      "https://assets.mixkit.co/active_storage/sfx/2365/2365-preview.mp3"
+    ),
+    call: new Audio(
+      "https://assets.mixkit.co/active_storage/sfx/2533/2533-preview.mp3"
+    ),
   };
 
   // Load âm thanh - Sử dụng lazy loading để tăng hiệu suất
@@ -156,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const boardSizeCreateSelect = document.getElementById("board-size-create");
   const moveTimeSelect = document.getElementById("move-time");
   const publicRoomCheckbox = document.getElementById("public-room");
+  const blockTwoEndsCheckbox = document.getElementById("block-two-ends");
   const roomList = document.getElementById("room-list");
   const refreshRoomsBtn = document.getElementById("refresh-rooms");
   const cancelWaitingBtn = document.getElementById("cancel-waiting");
@@ -166,10 +173,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const waitingBoardSizeSpan = document.getElementById("waiting-board-size");
   const waitingBoardSizeSpan2 = document.getElementById("waiting-board-size-2");
   const waitingMoveTimeSpan = document.getElementById("waiting-move-time");
+  const waitingBlockTwoEndsSpan = document.getElementById(
+    "waiting-block-two-ends"
+  );
 
   // Game elements
   const currentRoomSpan = document.getElementById("current-room");
   const currentRoomNameSpan = document.getElementById("current-room-name");
+  const gameRulesSpan = document.getElementById("game-rules");
   const playerXInfo = document
     .getElementById("player-x-info")
     .querySelector("span");
@@ -222,6 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let timeLeft = 30;
   let timerInterval;
   let tickSound = false;
+  let blockTwoEnds = false; // Chặn 2 đầu flag
 
   // Mobile device detection and optimization
   function isMobileDevice() {
@@ -908,6 +920,11 @@ document.addEventListener("DOMContentLoaded", () => {
               <span>Người tạo: ${room.createdBy}</span>
               <span>${room.boardSize}x${room.boardSize}</span>
               <span>${room.moveTime}s/nước</span>
+              ${
+                room.blockTwoEnds
+                  ? '<span class="block-rule">Chặn 2 đầu</span>'
+                  : ""
+              }
             </div>
           `;
 
@@ -986,6 +1003,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const boardSize = parseInt(boardSizeCreateSelect.value);
     const moveTime = parseInt(moveTimeSelect.value);
     const isPublic = publicRoomCheckbox.checked;
+    const blockTwoEnds = blockTwoEndsCheckbox.checked;
 
     if (!playerName) {
       alert("Vui lòng nhập tên người chơi!");
@@ -1018,11 +1036,15 @@ document.addEventListener("DOMContentLoaded", () => {
       boardSize,
       moveTime,
       isPublic,
+      blockTwoEnds,
     });
   });
 
   // Leave room event
   leaveRoomButton.addEventListener("click", () => {
+    // Clean up video call and chat
+    cleanupVideoCall();
+
     // Reset UI to login screen
     gameContainer.classList.add("hidden");
     loginScreen.classList.remove("hidden");
@@ -1065,18 +1087,23 @@ document.addEventListener("DOMContentLoaded", () => {
       boardSize: newBoardSize,
       moveTime: newMoveTime,
       opponent,
+      blockTwoEnds: newBlockTwoEnds,
     }) => {
       mySymbol = symbol;
       currentRoomId = roomId;
       boardSize = newBoardSize;
       moveTime = newMoveTime;
       timeLeft = moveTime;
+      blockTwoEnds = newBlockTwoEnds; // Lưu trữ cấu hình luật chơi
 
       // Update waiting screen info
       waitingRoomNameSpan.textContent = roomName || `Phòng ${roomId}`;
       waitingBoardSizeSpan.textContent = boardSize;
       waitingBoardSizeSpan2.textContent = boardSize;
       waitingMoveTimeSpan.textContent = moveTime;
+      waitingBlockTwoEndsSpan.textContent = blockTwoEnds
+        ? "Chặn 2 đầu"
+        : "Cơ bản (5 quân liên tiếp)";
 
       // Update board size in select element
       boardSizeSelect.value = newBoardSize.toString();
@@ -1100,6 +1127,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update room info
       currentRoomSpan.textContent = roomId;
       currentRoomNameSpan.textContent = roomName || `Phòng ${roomId}`;
+      gameRulesSpan.textContent = blockTwoEnds
+        ? "Luật: Chặn 2 đầu"
+        : "Luật: Cơ bản";
 
       // Initialize board
       initBoard();
@@ -1160,19 +1190,16 @@ document.addEventListener("DOMContentLoaded", () => {
         gameMessage.classList.remove("start-message");
       }, 2000);
 
+      // Show turn notification when game starts
+      setTimeout(() => {
+        showTurnNotification();
+      }, 500);
+
       // Play sound
       playSound("move");
 
       // Re-attach emoji button listeners
       setupEmojiButtons();
-
-      // Re-adjust board size for mobile
-      if (isMobileDevice()) {
-        setTimeout(() => {
-          const event = new Event("resize");
-          window.dispatchEvent(event);
-        }, 100);
-      }
     }
   );
 
@@ -1209,14 +1236,54 @@ document.addEventListener("DOMContentLoaded", () => {
         const cellIndex = lastMove.row * boardSize + lastMove.col;
         if (cells[cellIndex]) {
           cells[cellIndex].classList.add("last-move");
+
+          // Add position indicator to the last move
+          const positionIndicator = document.createElement("div");
+          positionIndicator.className = "last-move-position";
+
+          // Xác định nếu đây là nước đi của đối thủ
+          const isOpponentMove = lastMove.player !== mySymbol;
+
+          // Tạo nội dung vị trí với biểu tượng và định dạng tốt hơn
+          if (isOpponentMove) {
+            // Nếu là nước đi của đối thủ, hiển thị thông báo với biểu tượng
+            const opponentName =
+              playersInfo[lastMove.player]?.name ||
+              `Người chơi ${lastMove.player.toUpperCase()}`;
+            positionIndicator.innerHTML = `<span style="color: ${
+              lastMove.player === "x" ? "var(--x-color)" : "var(--o-color)"
+            }">⊕</span> ${opponentName} đánh <strong>${lastMove.row + 1},${
+              lastMove.col + 1
+            }</strong>`;
+          } else {
+            // Nếu là nước đi của mình, hiển thị vị trí với màu sắc tốt hơn
+            const playerName =
+              playersInfo[mySymbol]?.name ||
+              `Người chơi ${mySymbol.toUpperCase()}`;
+            positionIndicator.innerHTML = `<span style="color: ${
+              mySymbol === "x" ? "var(--x-color)" : "var(--o-color)"
+            }">✓</span> Bạn đánh <strong>${lastMove.row + 1},${
+              lastMove.col + 1
+            }</strong>`;
+          }
+
+          cells[cellIndex].appendChild(positionIndicator);
+
           setTimeout(() => {
             cells[cellIndex].classList.remove("last-move");
-          }, 2000);
+            // Remove the position indicator after animation completes
+            if (cells[cellIndex].contains(positionIndicator)) {
+              cells[cellIndex].removeChild(positionIndicator);
+            }
+          }, 2500);
         }
       }
 
       // Update player turn indicator
       updatePlayerTurn();
+
+      // Show turn notification in the middle of the screen
+      showTurnNotification();
 
       // Reset tick sound flag
       tickSound = false;
@@ -1285,8 +1352,51 @@ document.addEventListener("DOMContentLoaded", () => {
         c -= dy;
       }
 
-      // Nếu đủ 5 quân cờ liên tiếp, highlight dãy chiến thắng
+      // Nếu đủ 5 quân cờ liên tiếp
       if (count >= 5) {
+        // Kiểm tra chặn 2 đầu nếu luật này được bật
+        if (blockTwoEnds) {
+          // Kiểm tra đầu 1
+          let endR1 = cells[0].row + dx;
+          let endC1 = cells[0].col + dy;
+          let isBlocked1 = false;
+
+          // Nếu đầu đầu tiên nằm ngoài biên hoặc bị chặn bởi quân đối phương
+          if (
+            endR1 < 0 ||
+            endR1 >= boardSize ||
+            endC1 < 0 ||
+            endC1 >= boardSize ||
+            (gameState[endR1][endC1] !== "" &&
+              gameState[endR1][endC1] !== symbol)
+          ) {
+            isBlocked1 = true;
+          }
+
+          // Kiểm tra đầu 2
+          let endR2 = cells[cells.length - 1].row - dx;
+          let endC2 = cells[cells.length - 1].col - dy;
+          let isBlocked2 = false;
+
+          // Nếu đầu thứ hai nằm ngoài biên hoặc bị chặn bởi quân đối phương
+          if (
+            endR2 < 0 ||
+            endR2 >= boardSize ||
+            endC2 < 0 ||
+            endC2 >= boardSize ||
+            (gameState[endR2][endC2] !== "" &&
+              gameState[endR2][endC2] !== symbol)
+          ) {
+            isBlocked2 = true;
+          }
+
+          // Nếu cả 2 đầu đều bị chặn, không tính là thắng
+          if (isBlocked1 && isBlocked2) {
+            continue; // Tiếp tục kiểm tra hướng khác
+          }
+        }
+
+        // Highlight các ô chiến thắng
         const allCells = document.querySelectorAll(".cell");
         cells.forEach(({ row, col }) => {
           const index = row * boardSize + col;
@@ -1378,6 +1488,11 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll(".win-cell").forEach((cell) => {
         cell.classList.remove("win-cell");
       });
+
+      // Show turn notification when game resets
+      setTimeout(() => {
+        showTurnNotification();
+      }, 500);
 
       // Play sound
       playSound("move");
@@ -2163,4 +2278,393 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     document.addEventListener("click", userInteraction);
   });
+
+  // DOM elements for chat and video
+  const chatMessages = document.getElementById("chat-messages");
+  const chatInput = document.getElementById("chat-input");
+  const sendMessageBtn = document.getElementById("send-message-btn");
+  const toggleVideoBtn = document.getElementById("toggle-video");
+  const toggleAudioBtn = document.getElementById("toggle-audio");
+  const endCallBtn = document.getElementById("end-call");
+  const localVideo = document.getElementById("local-video");
+  const remoteVideo = document.getElementById("remote-video");
+
+  // Chat tab functionality
+  const communicationTabs = document.querySelectorAll(
+    ".communication-container .tab-btn"
+  );
+  const communicationContents = document.querySelectorAll(
+    ".communication-container .tab-content"
+  );
+
+  communicationTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      // Remove active class from all tabs and contents
+      communicationTabs.forEach((t) => t.classList.remove("active"));
+      communicationContents.forEach((c) => c.classList.remove("active"));
+
+      // Add active class to current tab and content
+      tab.classList.add("active");
+      const tabId = tab.getAttribute("data-tab");
+      document.getElementById(tabId).classList.add("active");
+    });
+  });
+
+  // Chat functionality
+  sendMessageBtn.addEventListener("click", sendMessage);
+  chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    // Send message to server
+    socket.emit("sendMessage", { roomId: currentRoomId, message });
+
+    // Clear input
+    chatInput.value = "";
+  }
+
+  function appendMessage(message) {
+    const { sender, symbol, message: text, timestamp } = message;
+
+    // Create message element
+    const messageEl = document.createElement("div");
+    messageEl.className = `message ${symbol === mySymbol ? "own" : "other"} ${
+      symbol === "x" ? "x-player" : "o-player"
+    }`;
+
+    // Create sender element
+    const senderEl = document.createElement("div");
+    senderEl.className = "sender";
+    senderEl.textContent = `${sender} (${symbol.toUpperCase()})`;
+
+    // Create text element
+    const textEl = document.createElement("div");
+    textEl.className = "text";
+    textEl.textContent = text;
+
+    // Create timestamp element
+    const timestampEl = document.createElement("div");
+    timestampEl.className = "timestamp";
+    timestampEl.textContent = new Date(timestamp).toLocaleTimeString();
+
+    // Append all elements to message
+    messageEl.appendChild(senderEl);
+    messageEl.appendChild(textEl);
+    messageEl.appendChild(timestampEl);
+
+    // Append message to chat
+    chatMessages.appendChild(messageEl);
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Play sound if message is from opponent
+    if (symbol !== mySymbol) {
+      playSound("message");
+    }
+  }
+
+  // Socket event for receiving messages
+  socket.on("messageReceived", (messageData) => {
+    appendMessage(messageData);
+  });
+
+  // Video call functionality
+  let localStream = null;
+  let peerConnection = null;
+  let isVideoEnabled = true;
+  let isAudioEnabled = true;
+  let isCallActive = false;
+
+  // ICE servers for WebRTC
+  const iceServers = {
+    iceServers: [
+      { urls: "stun:stun.stunprotocol.org:3478" },
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun2.l.google.com:19302" },
+      {
+        urls: "turn:numb.viagenie.ca",
+        credential: "muazkh",
+        username: "webrtc@live.com",
+      },
+    ],
+  };
+
+  // Start video call
+  async function startVideoCall() {
+    try {
+      // Get user media
+      localStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      // Display local video
+      localVideo.srcObject = localStream;
+
+      // Create peer connection
+      createPeerConnection();
+
+      // Add local stream to peer connection
+      localStream.getTracks().forEach((track) => {
+        peerConnection.addTrack(track, localStream);
+      });
+
+      // Create and send offer
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      // Send offer to remote peer
+      const remotePlayerId = Object.values(playersInfo).find(
+        (player) => player.id !== socket.id
+      )?.id;
+      if (remotePlayerId) {
+        socket.emit("videoSignal", {
+          roomId: currentRoomId,
+          signal: peerConnection.localDescription,
+          recipientId: remotePlayerId,
+        });
+      }
+
+      // Update UI to show call is active
+      isCallActive = true;
+      toggleVideoBtn.classList.add("active");
+      toggleAudioBtn.classList.add("active");
+      endCallBtn.style.display = "flex";
+
+      // Notify others about call status
+      socket.emit("videoStatus", {
+        roomId: currentRoomId,
+        isActive: true,
+      });
+
+      // Play call sound
+      playSound("call");
+    } catch (error) {
+      console.error("Error starting video call:", error);
+      alert("Không thể bắt đầu cuộc gọi video: " + error.message);
+    }
+  }
+
+  // Create WebRTC peer connection
+  function createPeerConnection() {
+    peerConnection = new RTCPeerConnection(iceServers);
+
+    // Handle ICE candidates
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        const remotePlayerId = Object.values(playersInfo).find(
+          (player) => player.id !== socket.id
+        )?.id;
+        if (remotePlayerId) {
+          socket.emit("videoSignal", {
+            roomId: currentRoomId,
+            signal: { type: "ice-candidate", candidate: event.candidate },
+            recipientId: remotePlayerId,
+          });
+        }
+      }
+    };
+
+    // Handle remote stream
+    peerConnection.ontrack = (event) => {
+      remoteVideo.srcObject = event.streams[0];
+    };
+
+    // Handle connection state changes
+    peerConnection.onconnectionstatechange = () => {
+      if (
+        peerConnection.connectionState === "disconnected" ||
+        peerConnection.connectionState === "failed"
+      ) {
+        endVideoCall();
+      }
+    };
+  }
+
+  // End video call
+  function endVideoCall() {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      localStream = null;
+    }
+
+    if (peerConnection) {
+      peerConnection.close();
+      peerConnection = null;
+    }
+
+    // Reset video elements
+    localVideo.srcObject = null;
+    remoteVideo.srcObject = null;
+
+    // Update UI
+    isCallActive = false;
+    toggleVideoBtn.classList.remove("active");
+    toggleAudioBtn.classList.remove("active");
+    endCallBtn.style.display = "none";
+
+    // Notify others about call status
+    socket.emit("videoStatus", {
+      roomId: currentRoomId,
+      isActive: false,
+    });
+  }
+
+  // Toggle video
+  function toggleVideo() {
+    if (!localStream) return;
+
+    const videoTracks = localStream.getVideoTracks();
+    if (videoTracks.length === 0) return;
+
+    isVideoEnabled = !isVideoEnabled;
+    videoTracks.forEach((track) => {
+      track.enabled = isVideoEnabled;
+    });
+
+    toggleVideoBtn.classList.toggle("disabled", !isVideoEnabled);
+  }
+
+  // Toggle audio
+  function toggleAudio() {
+    if (!localStream) return;
+
+    const audioTracks = localStream.getAudioTracks();
+    if (audioTracks.length === 0) return;
+
+    isAudioEnabled = !isAudioEnabled;
+    audioTracks.forEach((track) => {
+      track.enabled = isAudioEnabled;
+    });
+
+    toggleAudioBtn.classList.toggle("disabled", !isAudioEnabled);
+  }
+
+  // Socket event for video signals
+  socket.on("videoSignal", async ({ senderId, signal }) => {
+    try {
+      if (signal.type === "offer") {
+        // If we received an offer, we need to create a peer connection
+        if (!peerConnection) {
+          // Get user media
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+
+          // Display local video
+          localVideo.srcObject = localStream;
+
+          // Create peer connection
+          createPeerConnection();
+
+          // Add local stream to peer connection
+          localStream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, localStream);
+          });
+        }
+
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(signal)
+        );
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
+        // Send answer to remote peer
+        socket.emit("videoSignal", {
+          roomId: currentRoomId,
+          signal: peerConnection.localDescription,
+          recipientId: senderId,
+        });
+
+        // Update UI to show call is active
+        isCallActive = true;
+        toggleVideoBtn.classList.add("active");
+        toggleAudioBtn.classList.add("active");
+        endCallBtn.style.display = "flex";
+
+        // Play call sound
+        playSound("call");
+      } else if (signal.type === "answer") {
+        // If we received an answer, we need to set the remote description
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(signal)
+        );
+      } else if (signal.type === "ice-candidate") {
+        // If we received an ICE candidate, we need to add it to the peer connection
+        if (peerConnection) {
+          await peerConnection.addIceCandidate(
+            new RTCIceCandidate(signal.candidate)
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error handling video signal:", error);
+    }
+  });
+
+  // Socket event for video status updates
+  socket.on("videoStatusUpdate", ({ playerId, playerName, isActive }) => {
+    if (isActive) {
+      // Add notification that the player started a video call
+      const notification = document.createElement("div");
+      notification.className = "system-message";
+      notification.textContent = `${playerName} đã bắt đầu cuộc gọi video. Nhấn vào tab "Video Call" để tham gia.`;
+      chatMessages.appendChild(notification);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Play notification sound
+      playSound("call");
+    }
+  });
+
+  // Add event listeners for video controls
+  toggleVideoBtn.addEventListener("click", () => {
+    if (!isCallActive) {
+      startVideoCall();
+    } else {
+      toggleVideo();
+    }
+  });
+
+  toggleAudioBtn.addEventListener("click", toggleAudio);
+  endCallBtn.addEventListener("click", endVideoCall);
+
+  // Clean up video call when leaving room
+  function cleanupVideoCall() {
+    endVideoCall();
+    chatMessages.innerHTML = "";
+  }
+
+  // Clean up video call when window is closed or refreshed
+  window.addEventListener("beforeunload", () => {
+    endVideoCall();
+  });
+
+  // Hiển thị thông báo lượt chơi giữa màn hình
+  function showTurnNotification() {
+    const turnNotification = document.getElementById("turn-notification");
+    const playerSymbol = currentPlayer.toUpperCase();
+    const playerName =
+      playersInfo[currentPlayer]?.name || `Người chơi ${playerSymbol}`;
+
+    // Create notification content with colored player symbol
+    turnNotification.innerHTML = `Lượt của <span class="player-${currentPlayer}">${playerName}</span>`;
+
+    // Add show class to display the notification
+    turnNotification.classList.add("show");
+
+    // Remove show class after 1 second
+    setTimeout(() => {
+      turnNotification.classList.remove("show");
+    }, 1000);
+  }
 });

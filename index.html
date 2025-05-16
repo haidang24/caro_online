@@ -116,6 +116,12 @@
               >Hiển thị phòng trong danh sách công khai</label
             >
           </div>
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="block-two-ends" />
+            <label for="block-two-ends"
+              >Chặn 2 đầu (Phải tạo dãy 5 quân không bị chặn)</label
+            >
+          </div>
           <button id="create-room-btn" class="btn-primary">Tạo phòng</button>
         </div>
       </div>
@@ -132,6 +138,7 @@
             ></span>
           </p>
           <p>Thời gian mỗi nước: <span id="waiting-move-time"></span> giây</p>
+          <p>Luật chơi: <span id="waiting-block-two-ends"></span></p>
         </div>
         <p>Chia sẻ mã phòng này cho bạn bè để họ có thể tham gia!</p>
         <button id="cancel-waiting" class="btn-secondary">
@@ -169,6 +176,7 @@
               id="current-room"
             ></span
             >)
+            <span id="game-rules" class="game-rules"></span>
           </div>
           <div class="players-info">
             <div id="player-x-info" class="player-info">X: <span></span></div>
@@ -211,6 +219,9 @@
 
         <div id="game-message" class="game-message"></div>
       </div>
+
+      <!-- Turn notification -->
+      <div id="turn-notification" class="turn-notification"></div>
     </div>
 
     <script src="script.js"></script>
