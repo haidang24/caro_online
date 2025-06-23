@@ -1202,7 +1202,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Show turn notification when game starts
       setTimeout(() => {
-        showTurnNotification();
         showCenterTurnNotification();
       }, 500);
 
@@ -1294,7 +1293,6 @@ document.addEventListener("DOMContentLoaded", () => {
       updatePlayerTurn();
 
       // Show turn notification in the middle of the screen
-      showTurnNotification();
       showCenterTurnNotification();
 
       // Reset tick sound flag
@@ -1506,7 +1504,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Show turn notification when game resets
       setTimeout(() => {
-        showTurnNotification();
         showCenterTurnNotification();
       }, 500);
 
@@ -2790,25 +2787,6 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("beforeunload", () => {
     endVideoCall();
   });
-
-  // Hiển thị thông báo lượt chơi ở đầu màn hình
-  function showTurnNotification() {
-    const turnNotification = document.getElementById("turn-notification");
-    const playerSymbol = currentPlayer.toUpperCase();
-    const playerName =
-      playersInfo[currentPlayer]?.name || `Người chơi ${playerSymbol}`;
-
-    // Create notification content with colored player symbol
-    turnNotification.innerHTML = `Lượt của <span class="player-${currentPlayer}">${playerName}</span>`;
-
-    // Add show class to display the notification
-    turnNotification.classList.add("show");
-
-    // Remove show class after 1.5 seconds
-    setTimeout(() => {
-      turnNotification.classList.remove("show");
-    }, 1500);
-  }
 
   // Hiển thị thông báo lượt chơi ở giữa màn hình với hiệu ứng đẹp
   function showCenterTurnNotification() {

@@ -938,17 +938,7 @@ select {
         font-size: 0.9em;
     }
 
-    /* Mobile optimizations for notifications */
-    .turn-notification {
-        top: 70px;
-        right: 10px;
-        font-size: 0.9em;
-        padding: 8px 15px;
-        min-width: 140px;
-        max-width: 180px;
-        border-left-width: 4px;
-        box-shadow: 0 4px 20px rgba(77, 121, 255, 0.5);
-    }
+    /* Mobile optimizations for notifications removed */
 
     /* Mobile optimizations for center notification */
     .center-turn-content {
@@ -1853,69 +1843,7 @@ select {
   opacity: 1;
 }
 
-/* Turn notification styles - top right corner */
-.turn-notification {
-  position: fixed;
-  top: 100px;
-  right: 15px;
-  transform: translateX(300px);
-  background: linear-gradient(135deg, rgba(77, 121, 255, 0.98), rgba(54, 94, 224, 0.98));
-  color: white;
-  padding: 10px 18px;
-  border-radius: var(--radius-lg);
-  font-weight: 700;
-  font-size: 1em;
-  z-index: 1001;
-  text-align: center;
-  box-shadow: 0 6px 25px rgba(77, 121, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(12px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: none;
-  min-width: 160px;
-  max-width: 220px;
-  border-left: 5px solid rgba(255, 235, 59, 0.9);
-}
 
-.turn-notification.show {
-  transform: translateX(0);
-  animation: turn-slide-in 1.5s ease forwards;
-}
-
-.turn-notification .player-x {
-  color: #ffeb3b;
-  text-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
-  font-weight: 700;
-}
-
-.turn-notification .player-o {
-  color: #ff8a80;
-  text-shadow: 0 0 8px rgba(255, 138, 128, 0.6);
-  font-weight: 700;
-}
-
-.turn-notification::before {
-  content: "🎯";
-  margin-right: 8px;
-  font-size: 1.2em;
-  animation: pulse-icon 2s ease-in-out infinite;
-}
-
-.turn-notification:hover {
-  transform: translateX(-5px) scale(1.02);
-  box-shadow: 0 8px 30px rgba(77, 121, 255, 0.5);
-}
-
-@keyframes pulse-icon {
-  0%, 100% { 
-    transform: scale(1); 
-    opacity: 1; 
-  }
-  50% { 
-    transform: scale(1.1); 
-    opacity: 0.8; 
-  }
-}
 
 /* Center turn notification with beautiful effects */
 .center-turn-notification {
@@ -2177,31 +2105,7 @@ select {
   100% { border-color: rgba(255, 215, 0, 0); border-width: 1px; opacity: 0; }
 }
 
-/* Optimize animations */
-@keyframes turn-slide-in {
-  0% { 
-    opacity: 0; 
-    transform: translateX(300px) scale(0.8); 
-  }
-  20% { 
-    opacity: 1; 
-    transform: translateX(-10px) scale(1.05); 
-  }
-  30% { 
-    transform: translateX(5px) scale(1); 
-  }
-  40% { 
-    transform: translateX(0) scale(1); 
-  }
-  85% { 
-    opacity: 1; 
-    transform: translateX(0) scale(1); 
-  }
-  100% { 
-    opacity: 0; 
-    transform: translateX(50px) scale(0.9); 
-  }
-}
+
 
 /* Win/Loss notification styles */
 .win-loss-notification {
