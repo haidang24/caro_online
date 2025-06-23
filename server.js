@@ -65,6 +65,7 @@ app.get("/api/rooms", (req, res) => {
         playerCount: room.players.length,
         boardSize: room.boardSize,
         moveTime: room.moveTime,
+        blockTwoEnds: room.blockTwoEnds,
         createdBy: room.players[0]?.name || "Unknown",
       };
     }
@@ -79,8 +80,21 @@ io.on("connection", (socket) => {
   // Handle room creation
   socket.on(
     "createRoom",
-    ({ roomId, roomName, playerName, boardSize, moveTime, isPublic }) => {
-      console.log("Create room request:", { roomId, roomName, playerName });
+    ({
+      roomId,
+      roomName,
+      playerName,
+      boardSize,
+      moveTime,
+      isPublic,
+      blockTwoEnds,
+    }) => {
+      console.log("Create room request:", {
+        roomId,
+        roomName,
+        playerName,
+        blockTwoEnds,
+      });
 
       // Validate if room already exists
       if (rooms[roomId]) {
@@ -101,6 +115,7 @@ io.on("connection", (socket) => {
         moveTime: parseInt(moveTime) || DEFAULT_MOVE_TIME,
         gameActive: false, // Start as inactive until 2 players join
         isPublic: isPublic === undefined ? true : isPublic,
+        blockTwoEnds: blockTwoEnds === true, // Store the block two ends setting
         timer: null,
         timeLeft: parseInt(moveTime) || DEFAULT_MOVE_TIME,
         soundEffects: true, // Default setting for sound effects
@@ -161,6 +176,7 @@ io.on("connection", (socket) => {
       roomName: room.name,
       boardSize: room.boardSize,
       moveTime: room.moveTime,
+      blockTwoEnds: room.blockTwoEnds,
       opponent: room.players.find((p) => p.id !== socket.id)?.name || null,
     });
 
@@ -225,7 +241,8 @@ io.on("connection", (socket) => {
       row,
       col,
       player.symbol,
-      room.boardSize
+      room.boardSize,
+      room.blockTwoEnds
     );
 
     // Check for draw
@@ -444,7 +461,7 @@ io.on("connection", (socket) => {
 });
 
 // Helper functions for game logic
-function checkWin(board, row, col, player, boardSize) {
+function checkWin(board, row, col, player, boardSize, blockTwoEnds) {
   const directions = [
     [0, 1], // horizontal
     [1, 0], // vertical
@@ -459,17 +476,21 @@ function checkWin(board, row, col, player, boardSize) {
       1;
 
     if (count >= 5) {
-      // Kiểm tra chặn 2 đầu
-      const isBlocked = checkBlockedEnds(
-        board,
-        row,
-        col,
-        dx,
-        dy,
-        player,
-        boardSize
-      );
-      return !isBlocked; // Chỉ thắng nếu KHÔNG bị chặn 2 đầu
+      // Chỉ kiểm tra chặn 2 đầu nếu luật này được bật
+      if (blockTwoEnds) {
+        const isBlocked = checkBlockedEnds(
+          board,
+          row,
+          col,
+          dx,
+          dy,
+          player,
+          boardSize
+        );
+        return !isBlocked; // Chỉ thắng nếu KHÔNG bị chặn 2 đầu
+      } else {
+        return true; // Thắng ngay khi có 5 quân liên tiếp (luật cơ bản)
+      }
     }
     return false;
   });

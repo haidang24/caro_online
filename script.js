@@ -167,6 +167,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const refreshRoomsBtn = document.getElementById("refresh-rooms");
   const cancelWaitingBtn = document.getElementById("cancel-waiting");
 
+  // Win/Loss notification elements
+  const winLossNotification = document.getElementById("win-loss-notification");
+  const winLossIcon = winLossNotification.querySelector(".win-loss-icon");
+  const winLossTitle = winLossNotification.querySelector(".win-loss-title");
+  const winLossSubtitle =
+    winLossNotification.querySelector(".win-loss-subtitle");
+  const winLossEffects = winLossNotification.querySelector(".win-loss-effects");
+
   // Waiting screen elements
   const roomCodeSpan = document.getElementById("room-code");
   const waitingRoomNameSpan = document.getElementById("waiting-room-name");
@@ -207,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const laughEmojiBtn = document.getElementById("laugh-emoji");
   const thinkEmojiBtn = document.getElementById("think-emoji");
   const fireEmojiBtn = document.getElementById("fire-emoji");
+  const cowEmojiBtn = document.getElementById("cow-emoji");
 
   // Debug logs to check if emoji buttons are found
   console.log("Heart emoji button:", heartEmojiBtn);
@@ -216,7 +225,8 @@ document.addEventListener("DOMContentLoaded", () => {
     clapEmojiBtn,
     laughEmojiBtn,
     thinkEmojiBtn,
-    fireEmojiBtn
+    fireEmojiBtn,
+    cowEmojiBtn
   );
 
   // Game state
@@ -1193,6 +1203,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Show turn notification when game starts
       setTimeout(() => {
         showTurnNotification();
+        showCenterTurnNotification();
       }, 500);
 
       // Play sound
@@ -1284,6 +1295,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Show turn notification in the middle of the screen
       showTurnNotification();
+      showCenterTurnNotification();
 
       // Reset tick sound flag
       tickSound = false;
@@ -1432,13 +1444,16 @@ document.addEventListener("DOMContentLoaded", () => {
         highlightWinningCells(winningMove.row, winningMove.col, winner);
       }
 
-      // Show game result message
+      // Show beautiful win/loss notification
       if (draw) {
+        showWinLossNotification("draw");
         gameMessage.textContent = "Hòa!";
       } else if (timeout) {
+        showWinLossNotification("timeout", winner, { timeoutPlayer });
         gameMessage.textContent = `Người chơi ${timeoutPlayer.toUpperCase()} hết thời gian! ${winner.toUpperCase()} thắng!`;
         gameMessage.classList.add("win-message");
       } else {
+        showWinLossNotification("win", winner);
         gameMessage.textContent = `Người chơi ${winner.toUpperCase()} thắng!`;
         gameMessage.classList.add("win-message");
       }
@@ -1492,6 +1507,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Show turn notification when game resets
       setTimeout(() => {
         showTurnNotification();
+        showCenterTurnNotification();
       }, 500);
 
       // Play sound
@@ -2080,6 +2096,115 @@ document.addEventListener("DOMContentLoaded", () => {
           centerFire.parentNode.removeChild(centerFire);
         }
       }, 2000);
+    } else if (emoji === "cow") {
+      // Cow animation - super cute and unique
+      const centerCow = document.createElement("div");
+      centerCow.classList.add("emoji-cow");
+      centerCow.textContent = "🐄";
+      document.body.appendChild(centerCow);
+
+      // Create MOO sound effects
+      const mooTexts = ["MOO!", "Moo~", "MOOO!", "moo moo", "🥛"];
+      const numMoos = isMobile ? 8 : 15;
+
+      for (let i = 0; i < numMoos; i++) {
+        setTimeout(() => {
+          const moo = document.createElement("div");
+          moo.classList.add("cow-moo");
+          moo.textContent =
+            mooTexts[Math.floor(Math.random() * mooTexts.length)];
+
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+          const centerX = screenWidth / 2;
+          const centerY = screenHeight / 2;
+
+          // Position around the center cow
+          const angle = (i / numMoos) * Math.PI * 2;
+          const distance = Math.random() * 80 + 60;
+
+          moo.style.left = `${centerX + Math.cos(angle) * distance}px`;
+          moo.style.top = `${centerY + Math.sin(angle) * distance}px`;
+
+          document.body.appendChild(moo);
+
+          setTimeout(() => {
+            if (moo.parentNode) {
+              moo.parentNode.removeChild(moo);
+            }
+          }, 2000);
+        }, i * (isMobile ? 200 : 150));
+      }
+
+      // Create floating mini cows
+      const numCows = isMobile ? 6 : 12;
+      for (let i = 0; i < numCows; i++) {
+        setTimeout(() => {
+          const miniCow = document.createElement("div");
+          miniCow.textContent = "🐄";
+          miniCow.style.position = "fixed";
+          miniCow.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+          const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+
+          // Start from edges and move towards center
+          if (side === 0) {
+            // top
+            miniCow.style.left = `${Math.random() * screenWidth}px`;
+            miniCow.style.top = `-50px`;
+          } else if (side === 1) {
+            // right
+            miniCow.style.left = `${screenWidth + 50}px`;
+            miniCow.style.top = `${Math.random() * screenHeight}px`;
+          } else if (side === 2) {
+            // bottom
+            miniCow.style.left = `${Math.random() * screenWidth}px`;
+            miniCow.style.top = `${screenHeight + 50}px`;
+          } else {
+            // left
+            miniCow.style.left = `-50px`;
+            miniCow.style.top = `${Math.random() * screenHeight}px`;
+          }
+
+          miniCow.style.opacity = "0";
+          miniCow.style.transition = "all 2s ease-out";
+          miniCow.style.transform = "scale(0.5) rotate(0deg)";
+          miniCow.style.zIndex = "1000";
+
+          document.body.appendChild(miniCow);
+
+          // Animate towards center
+          requestAnimationFrame(() => {
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
+            miniCow.style.left = `${centerX + (Math.random() - 0.5) * 100}px`;
+            miniCow.style.top = `${centerY + (Math.random() - 0.5) * 100}px`;
+            miniCow.style.opacity = "1";
+            miniCow.style.transform = `scale(1.2) rotate(${
+              (Math.random() - 0.5) * 360
+            }deg)`;
+          });
+
+          setTimeout(() => {
+            miniCow.style.opacity = "0";
+            miniCow.style.transform = `scale(0) rotate(720deg)`;
+
+            setTimeout(() => {
+              if (miniCow.parentNode) {
+                miniCow.parentNode.removeChild(miniCow);
+              }
+            }, 2000);
+          }, 1500);
+        }, i * (isMobile ? 250 : 200));
+      }
+
+      setTimeout(() => {
+        if (centerCow.parentNode) {
+          centerCow.parentNode.removeChild(centerCow);
+        }
+      }, 2500);
     }
 
     // Play sound
@@ -2248,6 +2373,23 @@ document.addEventListener("DOMContentLoaded", () => {
           newFireBtn.classList.add("clicked");
           setTimeout(() => {
             newFireBtn.classList.remove("clicked");
+          }, 200);
+        }
+      });
+    }
+
+    // Cow emoji button
+    let newCowBtn = removeOldListeners(cowEmojiBtn, "click");
+    if (newCowBtn) {
+      newCowBtn.addEventListener("click", () => {
+        console.log("Cow emoji clicked");
+        if (sendEmoji("cow")) {
+          playSound("emoji");
+
+          // Add click effect to button
+          newCowBtn.classList.add("clicked");
+          setTimeout(() => {
+            newCowBtn.classList.remove("clicked");
           }, 200);
         }
       });
@@ -2649,7 +2791,7 @@ document.addEventListener("DOMContentLoaded", () => {
     endVideoCall();
   });
 
-  // Hiển thị thông báo lượt chơi giữa màn hình
+  // Hiển thị thông báo lượt chơi ở đầu màn hình
   function showTurnNotification() {
     const turnNotification = document.getElementById("turn-notification");
     const playerSymbol = currentPlayer.toUpperCase();
@@ -2662,9 +2804,245 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add show class to display the notification
     turnNotification.classList.add("show");
 
-    // Remove show class after 1 second
+    // Remove show class after 1.5 seconds
     setTimeout(() => {
       turnNotification.classList.remove("show");
+    }, 1500);
+  }
+
+  // Hiển thị thông báo lượt chơi ở giữa màn hình với hiệu ứng đẹp
+  function showCenterTurnNotification() {
+    const centerTurnNotification = document.getElementById(
+      "center-turn-notification"
+    );
+    const turnIcon = centerTurnNotification.querySelector(".turn-icon");
+    const turnText = centerTurnNotification.querySelector(".turn-text");
+
+    const playerSymbol = currentPlayer.toUpperCase();
+    const playerName =
+      playersInfo[currentPlayer]?.name || `Người chơi ${playerSymbol}`;
+    const isMyTurn = currentPlayer === mySymbol;
+
+    // Set icon based on player
+    turnIcon.textContent = currentPlayer === "x" ? "❌" : "⭕";
+
+    // Set text with different messages for own turn vs opponent turn
+    if (isMyTurn) {
+      turnText.innerHTML = `<strong>Đến lượt bạn!</strong><br/><span style="font-size: 0.8em; opacity: 0.9;">Hãy đặt quân ${playerSymbol}</span>`;
+    } else {
+      turnText.innerHTML = `<strong>Lượt của ${playerName}</strong><br/><span style="font-size: 0.8em; opacity: 0.9;">Đang chờ đối thủ đặt quân...</span>`;
+    }
+
+    // Reset classes
+    centerTurnNotification.className = "center-turn-notification";
+
+    // Add player-specific class for colors
+    centerTurnNotification.classList.add(`player-${currentPlayer}`);
+
+    // Show notification with animation
+    centerTurnNotification.classList.add("show");
+
+    // Hide after 1 second
+    setTimeout(() => {
+      centerTurnNotification.classList.remove("show");
     }, 1000);
+
+    // Add more particles for spectacular effect
+    setTimeout(() => {
+      createTurnParticles(centerTurnNotification);
+    }, 200);
+  }
+
+  // Tạo hiệu ứng particles cho thông báo lượt
+  function createTurnParticles(container) {
+    // Skip on mobile for performance
+    if (isMobileDevice()) return;
+
+    const colors =
+      currentPlayer === "x"
+        ? ["#ff5252", "#ff6b6b", "#ff8a80"]
+        : ["#22c55e", "#4ade80", "#86efac"];
+
+    for (let i = 0; i < 12; i++) {
+      setTimeout(() => {
+        const particle = document.createElement("div");
+        particle.style.position = "absolute";
+        particle.style.width = "4px";
+        particle.style.height = "4px";
+        particle.style.backgroundColor =
+          colors[Math.floor(Math.random() * colors.length)];
+        particle.style.borderRadius = "50%";
+        particle.style.pointerEvents = "none";
+        particle.style.zIndex = "1";
+
+        // Random position around the notification
+        const angle = (i / 12) * Math.PI * 2;
+        const distance = 60 + Math.random() * 40;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        particle.style.left = `calc(50% + ${x}px)`;
+        particle.style.top = `calc(50% + ${y}px)`;
+        particle.style.transform = "scale(0)";
+        particle.style.transition =
+          "all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+
+        container.appendChild(particle);
+
+        // Animate particle
+        requestAnimationFrame(() => {
+          particle.style.transform = `scale(1) translate(${
+            (Math.random() - 0.5) * 100
+          }px, ${-50 - Math.random() * 50}px)`;
+          particle.style.opacity = "0";
+        });
+
+        // Remove particle
+        setTimeout(() => {
+          if (particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+          }
+        }, 1500);
+      }, i * 50);
+    }
+  }
+
+  // Function to show win/loss notification
+  function showWinLossNotification(type, winner, details = {}) {
+    // Clear previous classes
+    winLossNotification.className = "win-loss-notification";
+
+    // Clear previous effects
+    winLossEffects.innerHTML = "";
+
+    let icon, title, subtitle;
+
+    if (type === "win") {
+      const isMyWin = winner === mySymbol;
+      icon = isMyWin ? "🏆" : "😢";
+      title = isMyWin ? "CHIẾN THẮNG!" : "THẤT BẠI!";
+      subtitle = isMyWin
+        ? `Chúc mừng! Bạn đã thắng!`
+        : `${playersInfo[winner]?.name || "Đối thủ"} đã thắng!`;
+
+      winLossNotification.classList.add(isMyWin ? "win" : "loss");
+
+      // Add confetti effect for win
+      if (isMyWin) {
+        createConfetti();
+      }
+    } else if (type === "draw") {
+      icon = "🤝";
+      title = "HÒA!";
+      subtitle = "Trận đấu kết thúc với tỷ số hòa";
+      winLossNotification.classList.add("draw");
+
+      // Add sparkle effect for draw
+      createSparkles();
+    } else if (type === "timeout") {
+      const isMyTimeout = details.timeoutPlayer === mySymbol;
+      icon = isMyTimeout ? "⏰😢" : "⏰🏆";
+      title = isMyTimeout ? "HẾT GIỜ!" : "CHIẾN THẮNG!";
+      subtitle = isMyTimeout
+        ? "Bạn đã hết thời gian!"
+        : `${
+            playersInfo[details.timeoutPlayer]?.name || "Đối thủ"
+          } hết thời gian!`;
+
+      winLossNotification.classList.add(isMyTimeout ? "loss" : "win");
+
+      if (!isMyTimeout) {
+        createConfetti();
+      }
+    }
+
+    // Set content
+    winLossIcon.textContent = icon;
+    winLossTitle.textContent = title;
+    winLossSubtitle.textContent = subtitle;
+
+    // Show notification
+    winLossNotification.classList.add("show");
+
+    // Hide after 4 seconds
+    setTimeout(() => {
+      winLossNotification.classList.remove("show");
+
+      // Clean up effects after hide animation
+      setTimeout(() => {
+        winLossEffects.innerHTML = "";
+      }, 500);
+    }, 4000);
+
+    // Add click to close
+    winLossNotification.addEventListener(
+      "click",
+      () => {
+        winLossNotification.classList.remove("show");
+        setTimeout(() => {
+          winLossEffects.innerHTML = "";
+        }, 500);
+      },
+      { once: true }
+    );
+  }
+
+  // Function to create confetti effect
+  function createConfetti() {
+    const colors = [
+      "#ffd700",
+      "#ff6b6b",
+      "#4ecdc4",
+      "#45b7d1",
+      "#96ceb4",
+      "#feca57",
+    ];
+    const numConfetti = isMobileDevice() ? 30 : 60;
+
+    for (let i = 0; i < numConfetti; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "%";
+        confetti.style.backgroundColor =
+          colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 2 + "s";
+        confetti.style.animationDuration = Math.random() * 2 + 2 + "s";
+
+        winLossEffects.appendChild(confetti);
+
+        // Remove confetti after animation
+        setTimeout(() => {
+          if (confetti.parentNode) {
+            confetti.parentNode.removeChild(confetti);
+          }
+        }, 5000);
+      }, i * 50);
+    }
+  }
+
+  // Function to create sparkle effect
+  function createSparkles() {
+    const numSparkles = isMobileDevice() ? 15 : 30;
+
+    for (let i = 0; i < numSparkles; i++) {
+      setTimeout(() => {
+        const sparkle = document.createElement("div");
+        sparkle.className = "sparkle";
+        sparkle.style.left = Math.random() * 100 + "%";
+        sparkle.style.top = Math.random() * 100 + "%";
+        sparkle.style.animationDelay = Math.random() * 2 + "s";
+        sparkle.style.animationDuration = Math.random() * 1 + 1.5 + "s";
+
+        winLossEffects.appendChild(sparkle);
+
+        // Remove sparkle after animation
+        setTimeout(() => {
+          if (sparkle.parentNode) {
+            sparkle.parentNode.removeChild(sparkle);
+          }
+        }, 4000);
+      }, i * 100);
+    }
   }
 });
