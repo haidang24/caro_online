@@ -742,80 +742,190 @@ document.addEventListener("DOMContentLoaded", () => {
   // Heart animation
   function showHeartAnimation() {
     const isMobile = isMobileDevice();
-    const numHearts = isMobile ? 4 : 8;
-    const floatingHearts = isMobile ? 8 : 16;
 
-    // Create main center heart
+    // Create main center heart with pulsing effect
     const centerHeart = document.createElement("div");
     centerHeart.classList.add("emoji-center");
     centerHeart.textContent = "❤️";
+    centerHeart.style.filter = "drop-shadow(0 0 30px rgba(255, 192, 203, 0.9))";
+    centerHeart.style.animation = "heart-pulse 2s ease-in-out infinite";
     document.body.appendChild(centerHeart);
 
-    // Use document fragment to reduce DOM operations
-    const fragment = document.createDocumentFragment();
-
-    // Create orbiting hearts
-    for (let i = 0; i < numHearts; i++) {
-      const orbitHeart = document.createElement("div");
-      orbitHeart.classList.add("heart-orbit");
-      orbitHeart.textContent = "❤️";
-      orbitHeart.style.animationDelay = `${i * 0.1}s`;
-      orbitHeart.style.transform = `translate(-50%, -50%) rotate(${
-        i * (360 / numHearts)
-      }deg) translateX(120px)`;
-      fragment.appendChild(orbitHeart);
-
-      // Remove after animation completes
+    // Create romantic heart burst waves
+    const numHeartWaves = isMobile ? 5 : 8;
+    for (let wave = 0; wave < numHeartWaves; wave++) {
       setTimeout(() => {
-        if (orbitHeart.parentNode) {
-          orbitHeart.parentNode.removeChild(orbitHeart);
+        const heartTypes = ["❤️", "💖", "💕", "💘", "💗", "💓"];
+        const numHeartsInWave = isMobile ? 10 : 16;
+
+        for (let i = 0; i < numHeartsInWave; i++) {
+          const heart = document.createElement("div");
+          heart.textContent =
+            heartTypes[Math.floor(Math.random() * heartTypes.length)];
+          heart.style.position = "fixed";
+          heart.style.fontSize = `${Math.random() * 2.2 + 1.5}em`;
+          heart.style.zIndex = "1000";
+
+          // Romantic pink to red gradient colors
+          const pinkHues = [320, 330, 340, 350, 0, 10]; // Pink to red spectrum
+          const hue = pinkHues[Math.floor(Math.random() * pinkHues.length)];
+          heart.style.filter = `hue-rotate(${hue}deg) brightness(1.3) saturate(1.4)`;
+
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+          const centerX = screenWidth / 2;
+          const centerY = screenHeight / 2;
+
+          // Heart burst pattern with spiral effect
+          const angle = (i / numHeartsInWave) * Math.PI * 2 + wave * 0.4;
+          const baseRadius = (wave + 1) * 70;
+          const radius = baseRadius + Math.random() * 80;
+
+          const startX = centerX;
+          const startY = centerY;
+          const endX = centerX + Math.cos(angle) * radius;
+          const endY = centerY + Math.sin(angle) * radius;
+
+          heart.style.left = `${startX}px`;
+          heart.style.top = `${startY}px`;
+          heart.style.opacity = "0";
+          heart.style.transition =
+            "all 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+          heart.style.transform = "scale(0.2) rotate(0deg)";
+
+          document.body.appendChild(heart);
+
+          // Heart burst with romantic floating
+          requestAnimationFrame(() => {
+            heart.style.left = `${endX}px`;
+            heart.style.top = `${endY}px`;
+            heart.style.opacity = "1";
+            heart.style.transform = `scale(1.7) rotate(${
+              (Math.random() - 0.5) * 360
+            }deg)`;
+          });
+
+          setTimeout(() => {
+            heart.style.opacity = "0";
+            heart.style.transform = `scale(0.4) rotate(${
+              Math.random() * 720
+            }deg) translateY(-100px)`;
+
+            setTimeout(() => {
+              if (heart.parentNode) {
+                heart.parentNode.removeChild(heart);
+              }
+            }, 2800);
+          }, 2400);
         }
-      }, 2000 + i * 100);
+      }, wave * 350);
     }
 
-    document.body.appendChild(fragment);
+    // Create floating love particles
+    setTimeout(() => {
+      const loveParticles = ["💕", "✨", "💖", "🌸", "💫"];
+      const numParticles = isMobile ? 15 : 25;
 
-    // Create floating hearts with batching
-    const floatingFragment = document.createDocumentFragment();
-
-    for (let i = 0; i < floatingHearts; i++) {
-      setTimeout(() => {
-        const floatHeart = document.createElement("div");
-        floatHeart.classList.add("emoji-small");
-        floatHeart.textContent = "❤️";
-        floatHeart.style.fontSize = `${Math.random() * 1.5 + 1}em`;
-
-        // Position near center
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const centerX = screenWidth / 2;
-        const centerY = screenHeight / 2;
-        const angle = Math.random() * Math.PI * 2;
-        const distance = Math.random() * 150 + 100;
-
-        floatHeart.style.left = `${centerX + Math.cos(angle) * distance}px`;
-        floatHeart.style.top = `${centerY + Math.sin(angle) * distance}px`;
-        floatHeart.style.animation = `emoji-float ${
-          Math.random() * 2 + 2
-        }s forwards`;
-
-        document.body.appendChild(floatHeart);
-
-        // Remove after animation completes
+      for (let i = 0; i < numParticles; i++) {
         setTimeout(() => {
-          if (floatHeart.parentNode) {
-            floatHeart.parentNode.removeChild(floatHeart);
-          }
-        }, 4000);
-      }, i * (isMobile ? 150 : 100));
-    }
+          const particle = document.createElement("div");
+          particle.textContent =
+            loveParticles[Math.floor(Math.random() * loveParticles.length)];
+          particle.style.position = "fixed";
+          particle.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+          particle.style.zIndex = "1001";
+
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+
+          // Random floating pattern across screen
+          particle.style.left = `${Math.random() * screenWidth}px`;
+          particle.style.top = `${screenHeight + 50}px`;
+          particle.style.opacity = "0";
+          particle.style.transition = "all 4s ease-out";
+          particle.style.transform = "scale(0.3) rotate(0deg)";
+          particle.style.filter = "brightness(1.4) saturate(1.3)";
+
+          document.body.appendChild(particle);
+
+          // Floating upward like love in the air
+          requestAnimationFrame(() => {
+            particle.style.top = `${-100}px`;
+            particle.style.left = `${Math.random() * screenWidth}px`;
+            particle.style.opacity = "0.8";
+            particle.style.transform = `scale(1.2) rotate(${
+              Math.random() * 360
+            }deg)`;
+          });
+
+          setTimeout(() => {
+            particle.style.opacity = "0";
+            particle.style.transform = "scale(0.2)";
+
+            setTimeout(() => {
+              if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+              }
+            }, 4000);
+          }, 3600);
+        }, i * 120);
+      }
+    }, 1000);
+
+    // Create romantic sparkle rain
+    setTimeout(() => {
+      const sparkles = ["✨", "⭐", "🌟", "💫"];
+      for (let i = 0; i < (isMobile ? 12 : 20); i++) {
+        setTimeout(() => {
+          const sparkle = document.createElement("div");
+          sparkle.textContent =
+            sparkles[Math.floor(Math.random() * sparkles.length)];
+          sparkle.style.position = "fixed";
+          sparkle.style.fontSize = `${Math.random() * 1.3 + 0.8}em`;
+          sparkle.style.zIndex = "1002";
+
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+
+          // Sparkle rain from top
+          sparkle.style.left = `${Math.random() * screenWidth}px`;
+          sparkle.style.top = `-50px`;
+          sparkle.style.opacity = "0";
+          sparkle.style.transition = "all 3s ease-in-out";
+          sparkle.style.transform = "scale(0) rotate(0deg)";
+          sparkle.style.filter = "brightness(1.5) hue-rotate(300deg)";
+
+          document.body.appendChild(sparkle);
+
+          requestAnimationFrame(() => {
+            sparkle.style.top = `${screenHeight + 50}px`;
+            sparkle.style.left = `${Math.random() * screenWidth}px`;
+            sparkle.style.opacity = "0.9";
+            sparkle.style.transform = `scale(1.4) rotate(${
+              Math.random() * 720
+            }deg)`;
+          });
+
+          setTimeout(() => {
+            sparkle.style.opacity = "0";
+            sparkle.style.transform = "scale(0.2)";
+
+            setTimeout(() => {
+              if (sparkle.parentNode) {
+                sparkle.parentNode.removeChild(sparkle);
+              }
+            }, 3000);
+          }, 2700);
+        }, i * 100);
+      }
+    }, 1500);
 
     // Remove center heart after animation completes
     setTimeout(() => {
       if (centerHeart.parentNode) {
         centerHeart.parentNode.removeChild(centerHeart);
       }
-    }, 2000);
+    }, 5000);
   }
 
   // Function to optimize DOM operations in emoji animations
@@ -1853,355 +1963,828 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (emoji === "heart") {
       showHeartAnimation();
-    } else if (emoji === "stone") {
-      // Stone animation - optimized
-      const numStones = isMobile ? 1 : 2;
-      for (let i = 0; i < numStones; i++) {
-        const emojiElement = document.createElement("div");
-        emojiElement.classList.add("emoji-animation");
-        emojiElement.textContent = "🪨";
-
-        const boardRect = gameBoard.getBoundingClientRect();
-        const startX =
-          player === "x"
-            ? boardRect.left + Math.random() * 100
-            : boardRect.right - 100 - Math.random() * 100;
-        const startY = boardRect.bottom - 50;
-
-        emojiElement.style.left = `${startX}px`;
-        emojiElement.style.top = `${startY}px`;
-
-        document.body.appendChild(emojiElement);
-
-        // Batch style changes to reduce reflows
-        requestAnimationFrame(() => {
-          emojiElement.classList.add("emoji-fly");
-        });
-
-        setTimeout(() => {
-          if (emojiElement.parentNode) {
-            emojiElement.parentNode.removeChild(emojiElement);
-          }
-        }, 3000);
-      }
     } else if (emoji === "clap") {
-      // Clap animation - optimized
+      // Clap animation - enhanced with applause wave effect
       const centerClap = document.createElement("div");
       centerClap.classList.add("emoji-clap");
       centerClap.textContent = "👏";
+      centerClap.style.filter = "drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))";
       document.body.appendChild(centerClap);
 
-      const numClaps = isMobile ? 5 : 10;
-      const fragment = document.createDocumentFragment();
-
-      for (let i = 0; i < numClaps; i++) {
+      // Create applause wave expanding from center
+      const numWaves = isMobile ? 3 : 5;
+      for (let wave = 0; wave < numWaves; wave++) {
         setTimeout(() => {
-          const clap = document.createElement("div");
-          clap.textContent = "👏";
-          clap.style.position = "fixed";
-          clap.style.fontSize = `${Math.random() * 2 + 1}em`;
+          const numClapsInWave = isMobile ? 8 : 16;
 
-          const screenWidth = window.innerWidth;
-          const screenHeight = window.innerHeight;
-          clap.style.left = `${Math.random() * screenWidth}px`;
-          clap.style.top = `${
-            (Math.random() * screenHeight) / 2 + screenHeight / 4
-          }px`;
-          clap.style.transition = "all 1s ease-out";
-          clap.style.opacity = "0";
-          clap.style.transform = "scale(0.5)";
+          for (let i = 0; i < numClapsInWave; i++) {
+            const clap = document.createElement("div");
+            clap.textContent = "👏";
+            clap.style.position = "fixed";
+            clap.style.fontSize = `${Math.random() * 1.5 + 1.2}em`;
+            clap.style.zIndex = "1000";
 
-          document.body.appendChild(clap);
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
 
-          // Batch together for better performance
-          requestAnimationFrame(() => {
-            clap.style.opacity = "1";
-            clap.style.transform = "scale(1.2)";
-          });
+            // Create expanding circles of claps
+            const angle = (i / numClapsInWave) * Math.PI * 2;
+            const baseRadius = (wave + 1) * 80;
+            const radius = baseRadius + Math.random() * 40;
 
-          setTimeout(() => {
+            const startX = centerX + Math.cos(angle) * 30;
+            const startY = centerY + Math.sin(angle) * 30;
+            const endX = centerX + Math.cos(angle) * radius;
+            const endY = centerY + Math.sin(angle) * radius;
+
+            clap.style.left = `${startX}px`;
+            clap.style.top = `${startY}px`;
             clap.style.opacity = "0";
-            clap.style.transform = "scale(0.5) translateY(-20px)";
+            clap.style.transition =
+              "all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+            clap.style.transform = "scale(0.3) rotate(0deg)";
+            clap.style.filter = "brightness(1.2)";
+
+            document.body.appendChild(clap);
+
+            // Animate outward with smooth easing
+            requestAnimationFrame(() => {
+              clap.style.left = `${endX}px`;
+              clap.style.top = `${endY}px`;
+              clap.style.opacity = "1";
+              clap.style.transform = `scale(1.4) rotate(${
+                Math.random() * 720
+              }deg)`;
+            });
 
             setTimeout(() => {
-              if (clap.parentNode) {
-                clap.parentNode.removeChild(clap);
-              }
-            }, 1000);
-          }, 1000);
-        }, i * (isMobile ? 200 : 100));
+              clap.style.opacity = "0";
+              clap.style.transform = `scale(0.2) rotate(${
+                Math.random() * 1080
+              }deg) translateY(-80px)`;
+
+              setTimeout(() => {
+                if (clap.parentNode) {
+                  clap.parentNode.removeChild(clap);
+                }
+              }, 1500);
+            }, 1200);
+          }
+        }, wave * 400);
       }
+
+      // Add sparkle effect
+      setTimeout(() => {
+        for (let i = 0; i < (isMobile ? 6 : 12); i++) {
+          setTimeout(() => {
+            const sparkle = document.createElement("div");
+            sparkle.textContent = "✨";
+            sparkle.style.position = "fixed";
+            sparkle.style.fontSize = `${Math.random() * 1 + 0.8}em`;
+            sparkle.style.zIndex = "1001";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            sparkle.style.left = `${Math.random() * screenWidth}px`;
+            sparkle.style.top = `${Math.random() * screenHeight}px`;
+            sparkle.style.opacity = "0";
+            sparkle.style.transition = "all 1s ease-out";
+            sparkle.style.transform = "scale(0)";
+
+            document.body.appendChild(sparkle);
+
+            requestAnimationFrame(() => {
+              sparkle.style.opacity = "1";
+              sparkle.style.transform = "scale(1.5)";
+            });
+
+            setTimeout(() => {
+              sparkle.style.opacity = "0";
+              sparkle.style.transform = "scale(0.3)";
+
+              setTimeout(() => {
+                if (sparkle.parentNode) {
+                  sparkle.parentNode.removeChild(sparkle);
+                }
+              }, 1000);
+            }, 800);
+          }, i * 100);
+        }
+      }, 800);
 
       setTimeout(() => {
         if (centerClap.parentNode) {
           centerClap.parentNode.removeChild(centerClap);
         }
-      }, 2000);
+      }, 3500);
     } else if (emoji === "laugh") {
-      // Laugh animation - optimized
+      // Laugh animation - bouncing comedy explosion with rainbow effects
       const centerLaugh = document.createElement("div");
       centerLaugh.classList.add("emoji-laugh");
       centerLaugh.textContent = "😂";
+      centerLaugh.style.filter = "drop-shadow(0 0 20px rgba(255, 215, 0, 0.7))";
       document.body.appendChild(centerLaugh);
 
-      const texts = ["HA", "HA HA", "HI HI", "HE HE"];
-      const numTexts = isMobile ? 8 : 15;
-
-      for (let i = 0; i < numTexts; i++) {
+      // Create bouncing laugh waves
+      const numWaves = isMobile ? 4 : 6;
+      for (let wave = 0; wave < numWaves; wave++) {
         setTimeout(() => {
-          const text = document.createElement("div");
-          text.textContent = texts[Math.floor(Math.random() * texts.length)];
-          text.style.position = "fixed";
-          text.style.fontSize = `${Math.random() * 1.5 + 1}em`;
-          text.style.fontWeight = "bold";
-          text.style.color = `hsl(${Math.random() * 60 + 30}, 100%, 50%)`;
+          const texts = [
+            "HAHA",
+            "LOL",
+            "ROFL",
+            "XD",
+            "😂",
+            "LMAO",
+            "😆",
+            "🤣",
+            "HIHI",
+            "LMFAO",
+            "OMEGALUL",
+            "KEKW",
+            "😹",
+            "🙃",
+          ];
+          const numTextsInWave = isMobile ? 8 : 12;
 
-          const screenWidth = window.innerWidth;
-          const screenHeight = window.innerHeight;
-          text.style.left = `${
-            Math.random() * screenWidth * 0.6 + screenWidth * 0.2
-          }px`;
-          text.style.top = `${
-            Math.random() * screenHeight * 0.6 + screenHeight * 0.2
-          }px`;
-          text.style.opacity = "0";
-          text.style.transition = "all 1.5s ease-out";
-          text.style.transform = "scale(0.5)";
+          for (let i = 0; i < numTextsInWave; i++) {
+            const text = document.createElement("div");
+            text.textContent = texts[Math.floor(Math.random() * texts.length)];
+            text.style.position = "fixed";
+            text.style.fontSize = `${Math.random() * 2.5 + 1.5}em`;
+            text.style.fontWeight = "bold";
+            text.style.zIndex = "1000";
 
-          document.body.appendChild(text);
+            // Rainbow gradient colors
+            const hue = (wave * 60 + i * 30) % 360;
+            text.style.background = `linear-gradient(45deg, hsl(${hue}, 100%, 50%), hsl(${
+              (hue + 60) % 360
+            }, 100%, 60%))`;
+            text.style.webkitBackgroundClip = "text";
+            text.style.webkitTextFillColor = "transparent";
+            text.style.backgroundClip = "text";
+            text.style.textShadow = "none";
+            text.style.filter = "brightness(1.3) saturate(1.2)";
 
-          requestAnimationFrame(() => {
-            text.style.opacity = "1";
-            text.style.transform = "scale(1.2)";
-          });
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
 
-          setTimeout(() => {
+            // Bouncing pattern from center
+            const angle = (i / numTextsInWave) * Math.PI * 2 + wave * 0.5;
+            const distance = (wave + 1) * 80 + Math.random() * 60;
+
+            const startX = centerX;
+            const startY = centerY;
+            const midX = centerX + Math.cos(angle) * (distance * 0.7);
+            const midY = centerY + Math.sin(angle) * (distance * 0.7) - 80; // Arc up
+            const endX = centerX + Math.cos(angle) * distance;
+            const endY = centerY + Math.sin(angle) * distance;
+
+            text.style.left = `${startX}px`;
+            text.style.top = `${startY}px`;
             text.style.opacity = "0";
-            text.style.transform = "scale(0.8) translateY(-40px)";
+            text.style.transition =
+              "all 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+            text.style.transform = "scale(0.2) rotate(0deg)";
+
+            document.body.appendChild(text);
+
+            // First bounce - up and out
+            setTimeout(() => {
+              text.style.left = `${midX}px`;
+              text.style.top = `${midY}px`;
+              text.style.opacity = "1";
+              text.style.transform = `scale(1.8) rotate(${
+                (Math.random() - 0.5) * 180
+              }deg)`;
+            }, 100);
+
+            // Second bounce - final position
+            setTimeout(() => {
+              text.style.left = `${endX}px`;
+              text.style.top = `${endY}px`;
+              text.style.transform = `scale(1.4) rotate(${
+                (Math.random() - 0.5) * 360
+              }deg)`;
+            }, 900);
 
             setTimeout(() => {
-              if (text.parentNode) {
-                text.parentNode.removeChild(text);
-              }
-            }, 1500);
-          }, 1500);
-        }, i * (isMobile ? 200 : 150));
+              text.style.opacity = "0";
+              text.style.transform = `scale(0.3) rotate(${
+                Math.random() * 720
+              }deg) translateY(-100px)`;
+
+              setTimeout(() => {
+                if (text.parentNode) {
+                  text.parentNode.removeChild(text);
+                }
+              }, 1800);
+            }, 1600);
+          }
+        }, wave * 200);
       }
+
+      // Add floating LOL bubbles
+      setTimeout(() => {
+        const bubbleTexts = ["😂", "🤣", "😹", "🙃", "😄", "😁"];
+        for (let i = 0; i < (isMobile ? 10 : 18); i++) {
+          setTimeout(() => {
+            const bubble = document.createElement("div");
+            bubble.textContent =
+              bubbleTexts[Math.floor(Math.random() * bubbleTexts.length)];
+            bubble.style.position = "fixed";
+            bubble.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+            bubble.style.zIndex = "1001";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            bubble.style.left = `${Math.random() * screenWidth}px`;
+            bubble.style.top = `${screenHeight + 50}px`;
+            bubble.style.opacity = "0";
+            bubble.style.transition = "all 3s ease-out";
+            bubble.style.transform = "scale(0.5)";
+            bubble.style.filter = `hue-rotate(${
+              Math.random() * 360
+            }deg) brightness(1.2)`;
+
+            document.body.appendChild(bubble);
+
+            requestAnimationFrame(() => {
+              bubble.style.top = `${-100}px`;
+              bubble.style.left = `${Math.random() * screenWidth}px`;
+              bubble.style.opacity = "0.9";
+              bubble.style.transform = `scale(1.3) rotate(${
+                Math.random() * 360
+              }deg)`;
+            });
+
+            setTimeout(() => {
+              bubble.style.opacity = "0";
+              bubble.style.transform = "scale(0.2)";
+
+              setTimeout(() => {
+                if (bubble.parentNode) {
+                  bubble.parentNode.removeChild(bubble);
+                }
+              }, 3000);
+            }, 2700);
+          }, i * 80);
+        }
+      }, 800);
 
       setTimeout(() => {
         if (centerLaugh.parentNode) {
           centerLaugh.parentNode.removeChild(centerLaugh);
         }
-      }, 2000);
-    } else if (emoji === "think") {
-      // Think animation - optimized
-      const centerThink = document.createElement("div");
-      centerThink.classList.add("emoji-think");
-      centerThink.textContent = "🤔";
-      document.body.appendChild(centerThink);
+      }, 4000);
+    } else if (emoji === "angry") {
+      // Angry animation - explosive rage with fire effects
+      const centerAngry = document.createElement("div");
+      centerAngry.classList.add("emoji-angry");
+      centerAngry.textContent = "😡";
+      centerAngry.style.filter = "drop-shadow(0 0 25px rgba(255, 0, 0, 0.8))";
+      document.body.appendChild(centerAngry);
 
-      const numBubbles = isMobile ? 4 : 8;
-
-      for (let i = 0; i < numBubbles; i++) {
+      // Create expanding rage explosion
+      const numExplosions = isMobile ? 3 : 5;
+      for (let explosion = 0; explosion < numExplosions; explosion++) {
         setTimeout(() => {
-          const bubble = document.createElement("div");
-          bubble.textContent = "💭";
-          bubble.style.position = "fixed";
-          bubble.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+          const explosionEffects = ["💥", "🔥", "💢", "⚡"];
+          const numInExplosion = isMobile ? 8 : 12;
 
-          const screenWidth = window.innerWidth;
-          const screenHeight = window.innerHeight;
-          const centerX = screenWidth / 2;
-          const centerY = screenHeight / 2;
+          for (let i = 0; i < numInExplosion; i++) {
+            const effect = document.createElement("div");
+            effect.textContent =
+              explosionEffects[
+                Math.floor(Math.random() * explosionEffects.length)
+              ];
+            effect.style.position = "fixed";
+            effect.style.fontSize = `${Math.random() * 2.5 + 1.5}em`;
+            effect.style.zIndex = "1000";
 
-          const angle = Math.random() * Math.PI - Math.PI / 2;
-          const distance = Math.random() * 100 + 50;
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
 
-          bubble.style.left = `${centerX + Math.cos(angle) * distance}px`;
-          bubble.style.top = `${centerY + Math.sin(angle) * distance}px`;
-          bubble.style.opacity = "0";
-          bubble.style.transition = "all 2s ease-out";
-          bubble.style.transform = "scale(0.5)";
+            // Explosive radial pattern
+            const angle = (i / numInExplosion) * Math.PI * 2 + explosion * 0.3;
+            const baseRadius = (explosion + 1) * 60;
+            const radius = baseRadius + Math.random() * 80;
 
-          document.body.appendChild(bubble);
+            const startX = centerX;
+            const startY = centerY;
+            const endX = centerX + Math.cos(angle) * radius;
+            const endY = centerY + Math.sin(angle) * radius;
 
-          requestAnimationFrame(() => {
-            bubble.style.opacity = "0.8";
-            bubble.style.transform = "scale(1) translateY(-100px)";
-          });
+            effect.style.left = `${startX}px`;
+            effect.style.top = `${startY}px`;
+            effect.style.opacity = "0";
+            effect.style.transition =
+              "all 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+            effect.style.transform = "scale(0.2) rotate(0deg)";
+            effect.style.filter = "hue-rotate(0deg) brightness(1.5)";
 
-          setTimeout(() => {
-            bubble.style.opacity = "0";
+            document.body.appendChild(effect);
+
+            // Explosive outward movement
+            requestAnimationFrame(() => {
+              effect.style.left = `${endX}px`;
+              effect.style.top = `${endY}px`;
+              effect.style.opacity = "1";
+              effect.style.transform = `scale(2) rotate(${
+                Math.random() * 720
+              }deg)`;
+              effect.style.filter = `hue-rotate(${
+                Math.random() * 60
+              }deg) brightness(1.8)`;
+            });
 
             setTimeout(() => {
-              if (bubble.parentNode) {
-                bubble.parentNode.removeChild(bubble);
-              }
-            }, 2000);
-          }, 2000);
-        }, i * 250);
+              effect.style.opacity = "0";
+              effect.style.transform = `scale(0.1) rotate(${
+                Math.random() * 1440
+              }deg)`;
+              effect.style.filter = "brightness(0.5)";
+
+              setTimeout(() => {
+                if (effect.parentNode) {
+                  effect.parentNode.removeChild(effect);
+                }
+              }, 1800);
+            }, 1500);
+          }
+        }, explosion * 300);
       }
 
+      // Add smoke and anger symbols floating up
       setTimeout(() => {
-        if (centerThink.parentNode) {
-          centerThink.parentNode.removeChild(centerThink);
-        }
-      }, 2500);
-    } else if (emoji === "fire") {
-      // Fire animation - optimized
-      const centerFire = document.createElement("div");
-      centerFire.classList.add("emoji-fire");
-      centerFire.textContent = "🔥";
-      document.body.appendChild(centerFire);
-
-      const particles = ["💥", "✨", "🔥", "⚡"];
-      const numParticles = isMobile ? 10 : 20;
-
-      for (let i = 0; i < numParticles; i++) {
-        setTimeout(() => {
-          const particle = document.createElement("div");
-          particle.classList.add("fire-particle");
-          particle.textContent =
-            particles[Math.floor(Math.random() * particles.length)];
-          particle.style.fontSize = `${Math.random() * 1.8 + 0.8}em`;
-
-          const screenWidth = window.innerWidth;
-          const screenHeight = window.innerHeight;
-          const centerX = screenWidth / 2;
-          const centerY = screenHeight / 2;
-
-          particle.style.left = `${centerX}px`;
-          particle.style.top = `${centerY}px`;
-
-          const tx = Math.random() * 300 - 150;
-          const ty = Math.random() * 300 - 150;
-          particle.style.setProperty("--tx", `${tx}px`);
-          particle.style.setProperty("--ty", `${ty}px`);
-
-          document.body.appendChild(particle);
-
+        const smokeEffects = ["😤", "💨", "😡"];
+        for (let i = 0; i < (isMobile ? 6 : 10); i++) {
           setTimeout(() => {
-            if (particle.parentNode) {
-              particle.parentNode.removeChild(particle);
-            }
-          }, 1500);
-        }, i * (isMobile ? 150 : 100));
-      }
+            const smoke = document.createElement("div");
+            smoke.textContent =
+              smokeEffects[Math.floor(Math.random() * smokeEffects.length)];
+            smoke.style.position = "fixed";
+            smoke.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+            smoke.style.zIndex = "1001";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+
+            smoke.style.left = `${centerX + (Math.random() - 0.5) * 200}px`;
+            smoke.style.top = `${screenHeight - 100}px`;
+            smoke.style.opacity = "0";
+            smoke.style.transition = "all 3s ease-out";
+            smoke.style.transform = "scale(0.5)";
+
+            document.body.appendChild(smoke);
+
+            requestAnimationFrame(() => {
+              smoke.style.top = `${screenHeight / 2 - 200}px`;
+              smoke.style.opacity = "0.8";
+              smoke.style.transform = "scale(1.2)";
+            });
+
+            setTimeout(() => {
+              smoke.style.opacity = "0";
+              smoke.style.transform = "scale(0.3) translateY(-100px)";
+
+              setTimeout(() => {
+                if (smoke.parentNode) {
+                  smoke.parentNode.removeChild(smoke);
+                }
+              }, 3000);
+            }, 2500);
+          }, i * 200);
+        }
+      }, 500);
 
       setTimeout(() => {
-        if (centerFire.parentNode) {
-          centerFire.parentNode.removeChild(centerFire);
+        if (centerAngry.parentNode) {
+          centerAngry.parentNode.removeChild(centerAngry);
         }
-      }, 2000);
+      }, 4000);
     } else if (emoji === "cow") {
-      // Cow animation - super cute and unique
+      // Cow animation - adorable farm celebration with milk effects
       const centerCow = document.createElement("div");
       centerCow.classList.add("emoji-cow");
       centerCow.textContent = "🐄";
+      centerCow.style.filter = "drop-shadow(0 0 25px rgba(255, 255, 255, 0.8))";
       document.body.appendChild(centerCow);
 
-      // Create MOO sound effects
-      const mooTexts = ["MOO!", "Moo~", "MOOO!", "moo moo", "🥛"];
-      const numMoos = isMobile ? 8 : 15;
-
-      for (let i = 0; i < numMoos; i++) {
+      // Create expanding moo sound waves
+      const numMooWaves = isMobile ? 4 : 6;
+      for (let wave = 0; wave < numMooWaves; wave++) {
         setTimeout(() => {
-          const moo = document.createElement("div");
-          moo.classList.add("cow-moo");
-          moo.textContent =
-            mooTexts[Math.floor(Math.random() * mooTexts.length)];
+          const mooTexts = [
+            "MOO!",
+            "Moo~",
+            "MOOO!",
+            "moo moo",
+            "MOOOOO!",
+            "Moooh~",
+          ];
+          const numMoosInWave = isMobile ? 8 : 12;
 
-          const screenWidth = window.innerWidth;
-          const screenHeight = window.innerHeight;
-          const centerX = screenWidth / 2;
-          const centerY = screenHeight / 2;
+          for (let i = 0; i < numMoosInWave; i++) {
+            const moo = document.createElement("div");
+            moo.classList.add("cow-moo");
+            moo.textContent =
+              mooTexts[Math.floor(Math.random() * mooTexts.length)];
+            moo.style.position = "fixed";
+            moo.style.fontSize = `${Math.random() * 2 + 1.5}em`;
+            moo.style.fontWeight = "bold";
+            moo.style.zIndex = "1000";
 
-          // Position around the center cow
-          const angle = (i / numMoos) * Math.PI * 2;
-          const distance = Math.random() * 80 + 60;
+            // Warm brown/orange colors for cow sounds
+            const brownHues = [25, 30, 35, 40, 45]; // Brown to orange spectrum
+            const hue = brownHues[Math.floor(Math.random() * brownHues.length)];
+            moo.style.color = `hsl(${hue}, 80%, 60%)`;
+            moo.style.textShadow = "2px 2px 4px rgba(139, 69, 19, 0.3)";
 
-          moo.style.left = `${centerX + Math.cos(angle) * distance}px`;
-          moo.style.top = `${centerY + Math.sin(angle) * distance}px`;
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
 
-          document.body.appendChild(moo);
+            // Circular expansion pattern
+            const angle = (i / numMoosInWave) * Math.PI * 2 + wave * 0.3;
+            const baseRadius = (wave + 1) * 60;
+            const radius = baseRadius + Math.random() * 50;
 
-          setTimeout(() => {
-            if (moo.parentNode) {
-              moo.parentNode.removeChild(moo);
-            }
-          }, 2000);
-        }, i * (isMobile ? 200 : 150));
+            const startX = centerX;
+            const startY = centerY;
+            const endX = centerX + Math.cos(angle) * radius;
+            const endY = centerY + Math.sin(angle) * radius;
+
+            moo.style.left = `${startX}px`;
+            moo.style.top = `${startY}px`;
+            moo.style.opacity = "0";
+            moo.style.transition =
+              "all 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+            moo.style.transform = "scale(0.2) rotate(0deg)";
+
+            document.body.appendChild(moo);
+
+            // Sound wave expansion
+            requestAnimationFrame(() => {
+              moo.style.left = `${endX}px`;
+              moo.style.top = `${endY}px`;
+              moo.style.opacity = "1";
+              moo.style.transform = `scale(1.6) rotate(${
+                (Math.random() - 0.5) * 60
+              }deg)`;
+            });
+
+            setTimeout(() => {
+              moo.style.opacity = "0";
+              moo.style.transform = `scale(0.5) rotate(${
+                Math.random() * 180
+              }deg) translateY(-60px)`;
+
+              setTimeout(() => {
+                if (moo.parentNode) {
+                  moo.parentNode.removeChild(moo);
+                }
+              }, 2200);
+            }, 2000);
+          }
+        }, wave * 400);
       }
 
-      // Create floating mini cows
-      const numCows = isMobile ? 6 : 12;
-      for (let i = 0; i < numCows; i++) {
+      // Create milk splash effect
+      setTimeout(() => {
+        const numMilkDrops = isMobile ? 12 : 20;
+        for (let i = 0; i < numMilkDrops; i++) {
+          setTimeout(() => {
+            const milk = document.createElement("div");
+            milk.textContent = "🥛";
+            milk.style.position = "fixed";
+            milk.style.fontSize = `${Math.random() * 1.8 + 1.2}em`;
+            milk.style.zIndex = "1001";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+
+            // Start from top like milk pouring
+            milk.style.left = `${centerX + (Math.random() - 0.5) * 200}px`;
+            milk.style.top = `-50px`;
+            milk.style.opacity = "0";
+            milk.style.transition = "all 3.5s ease-in-out";
+            milk.style.transform = "scale(0.3) rotate(0deg)";
+            milk.style.filter = "brightness(1.3)";
+
+            document.body.appendChild(milk);
+
+            // Milk pouring down
+            requestAnimationFrame(() => {
+              milk.style.top = `${screenHeight + 50}px`;
+              milk.style.left = `${centerX + (Math.random() - 0.5) * 300}px`;
+              milk.style.opacity = "0.9";
+              milk.style.transform = `scale(1.4) rotate(${
+                Math.random() * 720
+              }deg)`;
+            });
+
+            setTimeout(() => {
+              milk.style.opacity = "0";
+              milk.style.transform = "scale(0.2)";
+
+              setTimeout(() => {
+                if (milk.parentNode) {
+                  milk.parentNode.removeChild(milk);
+                }
+              }, 3500);
+            }, 3200);
+          }, i * 150);
+        }
+      }, 800);
+
+      // Create bouncing mini cows parade
+      const numMiniCows = isMobile ? 10 : 16;
+      for (let i = 0; i < numMiniCows; i++) {
         setTimeout(() => {
           const miniCow = document.createElement("div");
           miniCow.textContent = "🐄";
           miniCow.style.position = "fixed";
-          miniCow.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+          miniCow.style.fontSize = `${Math.random() * 2 + 1.5}em`;
+          miniCow.style.zIndex = "1000";
 
           const screenWidth = window.innerWidth;
           const screenHeight = window.innerHeight;
-          const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+          const side = Math.floor(Math.random() * 4);
 
-          // Start from edges and move towards center
+          // Start positions from edges
           if (side === 0) {
             // top
             miniCow.style.left = `${Math.random() * screenWidth}px`;
-            miniCow.style.top = `-50px`;
+            miniCow.style.top = `-80px`;
           } else if (side === 1) {
             // right
-            miniCow.style.left = `${screenWidth + 50}px`;
+            miniCow.style.left = `${screenWidth + 80}px`;
             miniCow.style.top = `${Math.random() * screenHeight}px`;
           } else if (side === 2) {
             // bottom
             miniCow.style.left = `${Math.random() * screenWidth}px`;
-            miniCow.style.top = `${screenHeight + 50}px`;
+            miniCow.style.top = `${screenHeight + 80}px`;
           } else {
             // left
-            miniCow.style.left = `-50px`;
+            miniCow.style.left = `-80px`;
             miniCow.style.top = `${Math.random() * screenHeight}px`;
           }
 
           miniCow.style.opacity = "0";
-          miniCow.style.transition = "all 2s ease-out";
-          miniCow.style.transform = "scale(0.5) rotate(0deg)";
-          miniCow.style.zIndex = "1000";
+          miniCow.style.transition =
+            "all 4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+          miniCow.style.transform = "scale(0.2) rotate(0deg)";
+          miniCow.style.filter = "brightness(1.2)";
 
           document.body.appendChild(miniCow);
 
-          // Animate towards center
-          requestAnimationFrame(() => {
+          // Bouncing movement to center
+          setTimeout(() => {
             const centerX = screenWidth / 2;
             const centerY = screenHeight / 2;
-            miniCow.style.left = `${centerX + (Math.random() - 0.5) * 100}px`;
-            miniCow.style.top = `${centerY + (Math.random() - 0.5) * 100}px`;
+            miniCow.style.left = `${centerX + (Math.random() - 0.5) * 150}px`;
+            miniCow.style.top = `${centerY + (Math.random() - 0.5) * 150}px`;
             miniCow.style.opacity = "1";
-            miniCow.style.transform = `scale(1.2) rotate(${
+            miniCow.style.transform = `scale(1.8) rotate(${
               (Math.random() - 0.5) * 360
             }deg)`;
-          });
+          }, 200);
 
+          // Final bounce and fade
           setTimeout(() => {
             miniCow.style.opacity = "0";
-            miniCow.style.transform = `scale(0) rotate(720deg)`;
+            miniCow.style.transform = `scale(0.3) rotate(${
+              Math.random() * 720
+            }deg) translateY(-120px)`;
 
             setTimeout(() => {
               if (miniCow.parentNode) {
                 miniCow.parentNode.removeChild(miniCow);
               }
-            }, 2000);
-          }, 1500);
-        }, i * (isMobile ? 250 : 200));
+            }, 4000);
+          }, 3500);
+        }, i * 250);
       }
 
       setTimeout(() => {
         if (centerCow.parentNode) {
           centerCow.parentNode.removeChild(centerCow);
         }
-      }, 2500);
+      }, 5500);
+    } else if (emoji === "hundred") {
+      // Hundred animation - holographic celebration with fireworks
+      const centerHundred = document.createElement("div");
+      centerHundred.classList.add("emoji-hundred");
+      centerHundred.textContent = "💯";
+      centerHundred.style.filter =
+        "drop-shadow(0 0 30px rgba(102, 126, 234, 0.8))";
+      document.body.appendChild(centerHundred);
+
+      // Create rainbow fireworks bursts
+      const numFireworks = isMobile ? 4 : 7;
+      for (let firework = 0; firework < numFireworks; firework++) {
+        setTimeout(() => {
+          const perfectTexts = [
+            "100%",
+            "PERFECT!",
+            "AMAZING!",
+            "💯",
+            "EXCELLENT!",
+            "FLAWLESS!",
+            "🎉",
+          ];
+          const numTextsInBurst = isMobile ? 10 : 16;
+
+          for (let i = 0; i < numTextsInBurst; i++) {
+            const text = document.createElement("div");
+            text.textContent =
+              perfectTexts[Math.floor(Math.random() * perfectTexts.length)];
+            text.style.position = "fixed";
+            text.style.fontSize = `${Math.random() * 2.2 + 1.5}em`;
+            text.style.fontWeight = "bold";
+            text.style.zIndex = "1000";
+
+            // Holographic gradient effect
+            const hue1 = Math.random() * 360;
+            const hue2 = (hue1 + 60) % 360;
+            text.style.background = `linear-gradient(45deg, hsl(${hue1}, 100%, 60%), hsl(${hue2}, 100%, 70%))`;
+            text.style.webkitBackgroundClip = "text";
+            text.style.webkitTextFillColor = "transparent";
+            text.style.backgroundClip = "text";
+            text.style.filter = "brightness(1.3)";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
+
+            // Firework explosion pattern
+            const angle = (i / numTextsInBurst) * Math.PI * 2 + firework * 0.4;
+            const baseRadius = (firework + 1) * 70;
+            const radius = baseRadius + Math.random() * 100;
+
+            const startX = centerX + (Math.random() - 0.5) * 100;
+            const startY = centerY + (Math.random() - 0.5) * 100;
+            const endX = startX + Math.cos(angle) * radius;
+            const endY = startY + Math.sin(angle) * radius;
+
+            text.style.left = `${startX}px`;
+            text.style.top = `${startY}px`;
+            text.style.opacity = "0";
+            text.style.transition =
+              "all 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+            text.style.transform = "scale(0.2) rotate(0deg)";
+
+            document.body.appendChild(text);
+
+            // Firework burst animation
+            requestAnimationFrame(() => {
+              text.style.left = `${endX}px`;
+              text.style.top = `${endY}px`;
+              text.style.opacity = "1";
+              text.style.transform = `scale(1.8) rotate(${
+                Math.random() * 360
+              }deg)`;
+            });
+
+            setTimeout(() => {
+              text.style.opacity = "0";
+              text.style.transform = `scale(0.3) rotate(${
+                Math.random() * 720
+              }deg) translateY(-100px)`;
+
+              setTimeout(() => {
+                if (text.parentNode) {
+                  text.parentNode.removeChild(text);
+                }
+              }, 2500);
+            }, 2200);
+          }
+        }, firework * 500);
+      }
+
+      // Create cascading sparkle waterfall
+      setTimeout(() => {
+        const numSparkles = isMobile ? 15 : 30;
+        for (let i = 0; i < numSparkles; i++) {
+          setTimeout(() => {
+            const sparkle = document.createElement("div");
+            const sparkleTypes = ["✨", "⭐", "🌟", "💫", "🎇"];
+            sparkle.textContent =
+              sparkleTypes[Math.floor(Math.random() * sparkleTypes.length)];
+            sparkle.style.position = "fixed";
+            sparkle.style.fontSize = `${Math.random() * 1.8 + 1}em`;
+            sparkle.style.zIndex = "1001";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Start from top and cascade down
+            sparkle.style.left = `${Math.random() * screenWidth}px`;
+            sparkle.style.top = `-50px`;
+            sparkle.style.opacity = "0";
+            sparkle.style.transition = "all 4s ease-in-out";
+            sparkle.style.transform = "scale(0) rotate(0deg)";
+            sparkle.style.filter = `hue-rotate(${
+              Math.random() * 360
+            }deg) brightness(1.5)`;
+
+            document.body.appendChild(sparkle);
+
+            requestAnimationFrame(() => {
+              sparkle.style.top = `${screenHeight + 50}px`;
+              sparkle.style.left = `${Math.random() * screenWidth}px`;
+              sparkle.style.opacity = "1";
+              sparkle.style.transform = `scale(1.5) rotate(${
+                Math.random() * 1080
+              }deg)`;
+            });
+
+            setTimeout(() => {
+              sparkle.style.opacity = "0";
+              sparkle.style.transform = `scale(0.2) rotate(${
+                Math.random() * 1440
+              }deg)`;
+
+              setTimeout(() => {
+                if (sparkle.parentNode) {
+                  sparkle.parentNode.removeChild(sparkle);
+                }
+              }, 4000);
+            }, 3500);
+          }, i * 100);
+        }
+      }, 1000);
+
+      // Create golden confetti explosion
+      setTimeout(() => {
+        for (let i = 0; i < (isMobile ? 12 : 20); i++) {
+          setTimeout(() => {
+            const confetti = document.createElement("div");
+            const confettiTypes = ["🎊", "🎉", "🥳", "💯"];
+            confetti.textContent =
+              confettiTypes[Math.floor(Math.random() * confettiTypes.length)];
+            confetti.style.position = "fixed";
+            confetti.style.fontSize = `${Math.random() * 1.5 + 1}em`;
+            confetti.style.zIndex = "1002";
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
+
+            confetti.style.left = `${centerX}px`;
+            confetti.style.top = `${centerY}px`;
+            confetti.style.opacity = "0";
+            confetti.style.transition =
+              "all 2s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+            confetti.style.transform = "scale(0)";
+
+            document.body.appendChild(confetti);
+
+            requestAnimationFrame(() => {
+              const angle = Math.random() * Math.PI * 2;
+              const distance = Math.random() * 300 + 200;
+              confetti.style.left = `${centerX + Math.cos(angle) * distance}px`;
+              confetti.style.top = `${centerY + Math.sin(angle) * distance}px`;
+              confetti.style.opacity = "1";
+              confetti.style.transform = `scale(2) rotate(${
+                Math.random() * 720
+              }deg)`;
+            });
+
+            setTimeout(() => {
+              confetti.style.opacity = "0";
+              confetti.style.transform = `scale(0.5) rotate(${
+                Math.random() * 1080
+              }deg)`;
+
+              setTimeout(() => {
+                if (confetti.parentNode) {
+                  confetti.parentNode.removeChild(confetti);
+                }
+              }, 2000);
+            }, 1800);
+          }, i * 150);
+        }
+      }, 2000);
+
+      setTimeout(() => {
+        if (centerHundred.parentNode) {
+          centerHundred.parentNode.removeChild(centerHundred);
+        }
+      }, 5000);
     }
 
     // Play sound
@@ -2212,11 +2795,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function setupEmojiButtons() {
     // Emoji reaction buttons
     const heartEmojiBtn = document.getElementById("heart-emoji");
-    const stoneEmojiBtn = document.getElementById("stone-emoji");
     const clapEmojiBtn = document.getElementById("clap-emoji");
     const laughEmojiBtn = document.getElementById("laugh-emoji");
-    const thinkEmojiBtn = document.getElementById("think-emoji");
-    const fireEmojiBtn = document.getElementById("fire-emoji");
+    const angryEmojiBtn = document.getElementById("angry-emoji");
+    const cowEmojiBtn = document.getElementById("cow-emoji");
+    const hundredEmojiBtn = document.getElementById("hundred-emoji");
 
     // Hàm gửi emoji với kiểm tra thời gian chờ
     const sendEmoji = (emoji) => {
@@ -2290,23 +2873,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Stone emoji button
-    let newStoneBtn = removeOldListeners(stoneEmojiBtn, "click");
-    if (newStoneBtn) {
-      newStoneBtn.addEventListener("click", () => {
-        console.log("Stone emoji clicked");
-        if (sendEmoji("stone")) {
-          playSound("emoji");
-
-          // Add click effect to button
-          newStoneBtn.classList.add("clicked");
-          setTimeout(() => {
-            newStoneBtn.classList.remove("clicked");
-          }, 200);
-        }
-      });
-    }
-
     // Clap emoji button
     let newClapBtn = removeOldListeners(clapEmojiBtn, "click");
     if (newClapBtn) {
@@ -2341,35 +2907,18 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Think emoji button
-    let newThinkBtn = removeOldListeners(thinkEmojiBtn, "click");
-    if (newThinkBtn) {
-      newThinkBtn.addEventListener("click", () => {
-        console.log("Think emoji clicked");
-        if (sendEmoji("think")) {
+    // Angry emoji button
+    let newAngryBtn = removeOldListeners(angryEmojiBtn, "click");
+    if (newAngryBtn) {
+      newAngryBtn.addEventListener("click", () => {
+        console.log("Angry emoji clicked");
+        if (sendEmoji("angry")) {
           playSound("emoji");
 
           // Add click effect to button
-          newThinkBtn.classList.add("clicked");
+          newAngryBtn.classList.add("clicked");
           setTimeout(() => {
-            newThinkBtn.classList.remove("clicked");
-          }, 200);
-        }
-      });
-    }
-
-    // Fire emoji button
-    let newFireBtn = removeOldListeners(fireEmojiBtn, "click");
-    if (newFireBtn) {
-      newFireBtn.addEventListener("click", () => {
-        console.log("Fire emoji clicked");
-        if (sendEmoji("fire")) {
-          playSound("emoji");
-
-          // Add click effect to button
-          newFireBtn.classList.add("clicked");
-          setTimeout(() => {
-            newFireBtn.classList.remove("clicked");
+            newAngryBtn.classList.remove("clicked");
           }, 200);
         }
       });
@@ -2387,6 +2936,23 @@ document.addEventListener("DOMContentLoaded", () => {
           newCowBtn.classList.add("clicked");
           setTimeout(() => {
             newCowBtn.classList.remove("clicked");
+          }, 200);
+        }
+      });
+    }
+
+    // Hundred emoji button
+    let newHundredBtn = removeOldListeners(hundredEmojiBtn, "click");
+    if (newHundredBtn) {
+      newHundredBtn.addEventListener("click", () => {
+        console.log("Hundred emoji clicked");
+        if (sendEmoji("hundred")) {
+          playSound("emoji");
+
+          // Add click effect to button
+          newHundredBtn.classList.add("clicked");
+          setTimeout(() => {
+            newHundredBtn.classList.remove("clicked");
           }, 200);
         }
       });

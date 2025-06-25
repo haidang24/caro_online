@@ -1126,45 +1126,93 @@ select {
     box-shadow: var(--shadow-sm);
 }
 
-/* Heart emoji specific styles */
+/* Heart emoji specific styles - Romantic red gradient */
 .emoji-btn.heart {
-    background-color: rgba(255, 182, 193, 0.2);
-    color: var(--x-color);
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255, 65, 108, 0.5);
+    border: none;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Stone emoji specific styles */
-.emoji-btn.stone {
-    background-color: rgba(169, 169, 169, 0.2);
-    color: var(--dark-color);
+.emoji-btn.heart::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s;
+    opacity: 0;
 }
 
-/* Clap emoji specific styles */
+.emoji-btn.heart:hover::before {
+    animation: heart-shine 0.6s ease-in-out;
+}
+
+/* Clap emoji specific styles - Golden celebration gradient */
 .emoji-btn.clap {
-    background-color: rgba(255, 215, 0, 0.2);
-    color: #ffd700;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #333;
+    box-shadow: 0 4px 20px rgba(247, 151, 30, 0.5);
+    border: none;
+    position: relative;
 }
 
-/* Laugh emoji specific styles */
+.emoji-btn.clap:hover {
+    animation: clap-bounce 0.6s ease;
+}
+
+/* Laugh emoji specific styles - Joyful yellow gradient */
 .emoji-btn.laugh {
-    background-color: rgba(255, 255, 0, 0.2);
-    color: #ffc83d;
+    background: linear-gradient(135deg, #ffb347, #ffcc02);
+    color: #333;
+    box-shadow: 0 4px 20px rgba(255, 179, 71, 0.5);
+    border: none;
+    position: relative;
 }
 
-/* Think emoji specific styles */
-.emoji-btn.think {
-    background-color: rgba(173, 216, 230, 0.2);
-    color: #1e90ff;
+.emoji-btn.laugh:hover {
+    animation: laugh-shake 0.8s ease;
 }
 
-/* Fire emoji specific styles */
-.emoji-btn.fire {
-    background-color: rgba(255, 69, 0, 0.2);
-    color: #ff4500;
+/* Angry emoji specific styles - Fiery red gradient */
+.emoji-btn.angry {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.5);
+    border: none;
+    position: relative;
+}
+
+.emoji-btn.angry:hover {
+    animation: angry-shake 0.5s ease;
+    box-shadow: 0 6px 25px rgba(255, 107, 107, 0.7);
+}
+
+/* Hundred emoji specific styles - Perfect purple gradient */
+.emoji-btn.hundred {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    color: #333;
+    box-shadow: 0 4px 20px rgba(168, 237, 234, 0.5);
+    border: none;
+    position: relative;
+}
+
+.emoji-btn.hundred:hover {
+    animation: hundred-glow 0.8s ease;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
 }
 
 .emoji-btn.cow {
     background: linear-gradient(135deg, #ffffff, #f8f8f8);
     border: 2px solid #ffb74d;
+    color: #333;
+    box-shadow: 0 4px 20px rgba(255, 183, 77, 0.4);
     position: relative;
     overflow: visible;
 }
@@ -1172,7 +1220,7 @@ select {
 .emoji-btn.cow:hover {
     background: linear-gradient(135deg, #fffde7, #fff8e1);
     animation: cow-bounce 0.8s ease;
-    box-shadow: 0 0 20px rgba(255, 183, 77, 0.6);
+    box-shadow: 0 0 25px rgba(255, 183, 77, 0.6);
 }
 
 .emoji-btn.cow::before {
@@ -1237,6 +1285,34 @@ select {
     100% { transform: translate(-50%, -50%) scale(3) translateY(-50px); opacity: 0; filter: blur(5px); }
 }
 
+/* Angry animation */
+@keyframes angry-animation {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+    10% { transform: translate(-50%, -50%) scale(1.2) rotate(-5deg); opacity: 1; }
+    20% { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
+    30% { transform: translate(-50%, -50%) scale(1.3) rotate(-3deg); }
+    40% { transform: translate(-50%, -50%) scale(1) rotate(3deg); }
+    50% { transform: translate(-50%, -50%) scale(1.4) rotate(-2deg); }
+    60% { transform: translate(-50%, -50%) scale(1.2) rotate(2deg); }
+    70% { transform: translate(-50%, -50%) scale(1.5) rotate(-1deg); }
+    80% { transform: translate(-50%, -50%) scale(1.3) rotate(1deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3) rotate(0deg); opacity: 0; }
+}
+
+/* Hundred animation */
+@keyframes hundred-animation {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    10% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+    20% { transform: translate(-50%, -50%) scale(1.1); }
+    30% { transform: translate(-50%, -50%) scale(1.4); }
+    40% { transform: translate(-50%, -50%) scale(1.2); }
+    50% { transform: translate(-50%, -50%) scale(1.5); }
+    60% { transform: translate(-50%, -50%) scale(1.3); }
+    70% { transform: translate(-50%, -50%) scale(1.6); }
+    80% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
 /* Cow animation */
 @keyframes cow-animation {
     0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
@@ -1289,7 +1365,7 @@ select {
     font-size: 6em;
     z-index: 1001;
     opacity: 0;
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7));
+    filter: drop-shadow(0 0 15px rgba(247, 151, 30, 0.8));
     animation: clap-animation 2s forwards;
 }
 
@@ -1301,11 +1377,11 @@ select {
     font-size: 6em;
     z-index: 1001;
     opacity: 0;
-    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7));
+    filter: drop-shadow(0 0 15px rgba(255, 179, 71, 0.8));
     animation: laugh-animation 2s forwards;
 }
 
-.emoji-think {
+.emoji-angry {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -1313,20 +1389,8 @@ select {
     font-size: 6em;
     z-index: 1001;
     opacity: 0;
-    filter: drop-shadow(0 0 15px rgba(30, 144, 255, 0.7));
-    animation: think-animation 2.5s forwards;
-}
-
-.emoji-fire {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    font-size: 6em;
-    z-index: 1001;
-    opacity: 0;
-    filter: drop-shadow(0 0 20px rgba(255, 69, 0, 0.9));
-    animation: fire-animation 2s forwards;
+    filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.9));
+    animation: angry-animation 2s forwards;
 }
 
 .emoji-cow {
@@ -1339,6 +1403,18 @@ select {
     opacity: 0;
     filter: drop-shadow(0 0 20px rgba(255, 183, 77, 0.9));
     animation: cow-animation 2.5s forwards;
+}
+
+.emoji-hundred {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 6em;
+    z-index: 1001;
+    opacity: 0;
+    filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.9));
+    animation: hundred-animation 2.5s forwards;
 }
 
 .cow-moo {
@@ -2296,4 +2372,80 @@ select {
   font-weight: 600;
   font-size: 0.9em;
   margin-left: 5px;
+}
+
+/* New emoji animations */
+@keyframes heart-pulse {
+    0% { 
+        transform: translate(-50%, -50%) scale(1); 
+        filter: drop-shadow(0 0 30px rgba(255, 192, 203, 0.9));
+    }
+    25% { 
+        transform: translate(-50%, -50%) scale(1.15); 
+        filter: drop-shadow(0 0 40px rgba(255, 105, 180, 1));
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.3); 
+        filter: drop-shadow(0 0 50px rgba(255, 20, 147, 1.2));
+    }
+    75% { 
+        transform: translate(-50%, -50%) scale(1.15); 
+        filter: drop-shadow(0 0 40px rgba(255, 105, 180, 1));
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(1); 
+        filter: drop-shadow(0 0 30px rgba(255, 192, 203, 0.9));
+    }
+}
+
+@keyframes heart-shine {
+    0% { opacity: 0; transform: translateX(-100%); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes clap-bounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-5deg); }
+    50% { transform: scale(1.2) rotate(0deg); }
+    75% { transform: scale(1.1) rotate(5deg); }
+}
+
+@keyframes laugh-shake {
+    0%, 100% { transform: translate(0) rotate(0deg); }
+    10% { transform: translate(-2px, -1px) rotate(-1deg); }
+    20% { transform: translate(2px, 1px) rotate(1deg); }
+    30% { transform: translate(-1px, -2px) rotate(-1deg); }
+    40% { transform: translate(1px, 2px) rotate(1deg); }
+    50% { transform: translate(-1px, 1px) rotate(-1deg); }
+    60% { transform: translate(1px, -1px) rotate(1deg); }
+    70% { transform: translate(-2px, 2px) rotate(-1deg); }
+    80% { transform: translate(2px, -2px) rotate(1deg); }
+    90% { transform: translate(-1px, 1px) rotate(-1deg); }
+}
+
+@keyframes angry-shake {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    10% { transform: scale(1.05) rotate(-2deg); }
+    20% { transform: scale(1.1) rotate(2deg); }
+    30% { transform: scale(1.05) rotate(-2deg); }
+    40% { transform: scale(1.1) rotate(2deg); }
+    50% { transform: scale(1.05) rotate(-2deg); }
+    60% { transform: scale(1.1) rotate(2deg); }
+    70% { transform: scale(1.05) rotate(-2deg); }
+    80% { transform: scale(1.1) rotate(2deg); }
+    90% { transform: scale(1.05) rotate(-2deg); }
+}
+
+@keyframes hundred-glow {
+    0% { box-shadow: 0 4px 20px rgba(168, 237, 234, 0.5); }
+    50% { box-shadow: 0 6px 30px rgba(102, 126, 234, 0.8), 0 0 20px rgba(118, 75, 162, 0.6); }
+    100% { box-shadow: 0 4px 20px rgba(168, 237, 234, 0.5); }
+}
+
+/* Enhanced performance and smooth animations enabled */
+.emoji-center, .emoji-clap, .emoji-laugh, .emoji-angry, .emoji-cow, .emoji-hundred {
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
