@@ -162,99 +162,115 @@
 
       <!-- Game container -->
       <div id="game-container" class="game-container hidden">
-        <div class="game-info">
-          <div class="player-turn">
-            <span class="player-x active">Người chơi X</span>
-            <span class="player-o">Người chơi O</span>
-          </div>
-          <div class="timer-display">
-            <div class="timer-icon">⏱️</div>
-            <div id="timer" class="timer">30</div>
-          </div>
-          <div class="score-board">
-            <div class="score x-score">
-              <span class="x-symbol">X</span>: <span id="x-score">0</span>
+        <div class="game-layout">
+          <!-- Left Sidebar Menu -->
+          <div class="game-sidebar">
+            <div class="game-info">
+              <div class="player-turn">
+                <span class="player-x active">Người chơi X</span>
+                <span class="player-o">Người chơi O</span>
+              </div>
+              <div class="timer-display">
+                <div class="timer-icon">⏱️</div>
+                <div id="timer" class="timer">30</div>
+              </div>
+              <div class="score-board">
+                <div class="score x-score">
+                  <span class="x-symbol">X</span>: <span id="x-score">0</span>
+                </div>
+                <div class="score o-score">
+                  <span class="o-symbol">O</span>: <span id="o-score">0</span>
+                </div>
+              </div>
+              <div id="toggle-sound" class="sound-toggle" title="Tắt âm thanh">
+                🔊
+              </div>
             </div>
-            <div class="score o-score">
-              <span class="o-symbol">O</span>: <span id="o-score">0</span>
+
+            <div class="online-status">
+              <div class="room-info">
+                Phòng: <span id="current-room-name"></span> (<span
+                  id="current-room"
+                ></span
+                >)
+                <span id="game-rules" class="game-rules"></span>
+              </div>
+              <div class="players-info">
+                <div id="player-x-info" class="player-info">
+                  X: <span></span>
+                </div>
+                <div id="player-o-info" class="player-info">
+                  O: <span></span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div id="toggle-sound" class="sound-toggle" title="Tắt âm thanh">
-            🔊
-          </div>
-        </div>
 
-        <div class="online-status">
-          <div class="room-info">
-            Phòng: <span id="current-room-name"></span> (<span
-              id="current-room"
-            ></span
-            >)
-            <span id="game-rules" class="game-rules"></span>
-          </div>
-          <div class="players-info">
-            <div id="player-x-info" class="player-info">X: <span></span></div>
-            <div id="player-o-info" class="player-info">O: <span></span></div>
-          </div>
-        </div>
+            <div class="controls">
+              <button id="reset-game">Chơi lại</button>
+              <button id="new-game">Ván mới</button>
+              <select id="board-size">
+                <option value="10">10x10</option>
+                <option value="15" selected>15x15</option>
+                <option value="20">20x20</option>
+              </select>
+              <select id="game-move-time">
+                <option value="15">15s</option>
+                <option value="30" selected>30s</option>
+                <option value="60">1m</option>
+                <option value="120">2m</option>
+              </select>
+              <button id="leave-room">Rời phòng</button>
+            </div>
 
-        <div class="game-board" id="game-board"></div>
+            <!-- Emoji reactions -->
+            <div class="emoji-container">
+              <div
+                id="heart-emoji"
+                class="emoji-btn heart"
+                title="Yêu thích nước đi"
+              >
+                ❤️
+              </div>
+              <div
+                id="clap-emoji"
+                class="emoji-btn clap"
+                title="Nước đi tuyệt vời"
+              >
+                👏
+              </div>
+              <div
+                id="laugh-emoji"
+                class="emoji-btn laugh"
+                title="Haha vui quá"
+              >
+                😂
+              </div>
+              <div id="angry-emoji" class="emoji-btn angry" title="Giận dữ">
+                😡
+              </div>
+              <div
+                id="cow-emoji"
+                class="emoji-btn cow"
+                title="Con bò siêu cute"
+              >
+                🐄
+              </div>
+              <div
+                id="hundred-emoji"
+                class="emoji-btn hundred"
+                title="100 điểm hoàn hảo"
+              >
+                💯
+              </div>
+            </div>
 
-        <div class="controls">
-          <button id="reset-game">Chơi lại</button>
-          <button id="new-game">Ván mới</button>
-          <select id="board-size">
-            <option value="10">10x10</option>
-            <option value="15" selected>15x15</option>
-            <option value="20">20x20</option>
-          </select>
-          <select id="game-move-time">
-            <option value="15">15s</option>
-            <option value="30" selected>30s</option>
-            <option value="60">1m</option>
-            <option value="120">2m</option>
-          </select>
-          <button id="leave-room">Rời phòng</button>
-        </div>
+            <div id="game-message" class="game-message"></div>
+          </div>
 
-        <!-- Emoji reactions -->
-        <div class="emoji-container">
-          <div
-            id="heart-emoji"
-            class="emoji-btn heart"
-            title="Yêu thích nước đi"
-          >
-            ❤️
+          <!-- Right Main Game Area -->
+          <div class="game-main">
+            <div class="game-board" id="game-board"></div>
           </div>
-          <div id="clap-emoji" class="emoji-btn clap" title="Nước đi tuyệt vời">
-            👏
-          </div>
-          <div id="laugh-emoji" class="emoji-btn laugh" title="Haha vui quá">
-            😂
-          </div>
-          <div id="angry-emoji" class="emoji-btn angry" title="Giận dữ">😡</div>
-          <div id="cow-emoji" class="emoji-btn cow" title="Con bò siêu cute">
-            🐄
-          </div>
-          <div
-            id="hundred-emoji"
-            class="emoji-btn hundred"
-            title="100 điểm hoàn hảo"
-          >
-            💯
-          </div>
-        </div>
-
-        <div id="game-message" class="game-message"></div>
-      </div>
-
-      <!-- Center turn notification with beautiful effects -->
-      <div id="center-turn-notification" class="center-turn-notification">
-        <div class="center-turn-content">
-          <div class="turn-particles"></div>
-          <div class="turn-icon"></div>
-          <div class="turn-text"></div>
-          <div class="turn-glow"></div>
         </div>
       </div>
 
